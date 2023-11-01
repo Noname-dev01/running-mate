@@ -14,13 +14,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        http.authorizeRequests()
-                .mvcMatchers("/running-mate","/running-mate/sign-up","/running-mate/login")
+        http.requestMatchers((matchers) -> matchers.antMatchers("/static/**"))
+                .authorizeRequests()
+                .mvcMatchers("/running-mate","/running-mate/sign-up","/running-mate/login","/resources/**")
                 .permitAll()
                 .mvcMatchers(HttpMethod.GET, "/profile/*").permitAll()
                 .anyRequest().authenticated();
 
         return http.build();
     }
+
 
 }
