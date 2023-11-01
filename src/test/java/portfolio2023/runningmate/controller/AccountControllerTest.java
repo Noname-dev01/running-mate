@@ -9,6 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.web.servlet.MockMvc;
+import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.repository.AccountRepository;
 
 import javax.transaction.Transactional;
@@ -65,7 +66,9 @@ class AccountControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/running-mate"));
 
-        assertTrue(accountRepository.existsByEmail("admin@email.com"));
+        Account account = accountRepository.findByEmail("admin@email.com");
+        assertNotNull(account);
+        assertNotEquals(account.getPassword(), "123456789");
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
     }
 }
