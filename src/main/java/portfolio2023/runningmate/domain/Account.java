@@ -5,6 +5,7 @@ import org.hibernate.annotations.CollectionId;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -50,4 +51,8 @@ public class Account {
     private boolean runningUpdatedByEmail;
 
     private boolean runningUpdatedByWeb;
+
+    public void generateEmailCheckToken() {
+        this.emailCheckToken = UUID.randomUUID().toString();
+    }
 }

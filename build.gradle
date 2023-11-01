@@ -22,6 +22,8 @@ repositories {
 }
 
 dependencies {
+	//mail sender
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	//검증(Validation)
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	//H2 db
