@@ -22,6 +22,8 @@ repositories {
 }
 
 dependencies {
+	//검증(Validation)
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	//H2 db
 	implementation 'com.h2database:h2'
 	//Spring Security

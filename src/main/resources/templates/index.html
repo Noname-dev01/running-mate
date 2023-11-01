@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>런닝 메이트</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/node_modules/@popperjs/core/dist/umd/popper.min.js"></script>
+    <script src="/node_modules/jquery/dist/jquery.slim.min.js"></script>
+    <style>
+        .container {
+            max-width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<nav th:fragment="main-nav" class="navbar navbar-expand-sm navbar-light bg-light"
+     style="border-bottom: 1px solid #a7abb2;">
+    <a class="navbar-brand" th:href="@{/running-mate}">
+        <img src="/imgs/running-mate-logo.png" width="100" height="30">
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+                <form th:action="@{/running-mate}" class="form-inline" method="get">
+                    <input class="form-control me-sm-2" name="keyword" type="search" placeholder="런닝 메이트 찾기" aria-label="Search" />
+                </form>
+            </li>
+        </ul>
+
+        <ul class="navbar-nav justify-content-end">
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/running-mate/login}">로그인</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" th:href="@{/running-mate/sign-up}">회원 가입</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<footer th:fragment="footer">
+    <div class="d-flex justify-content-center">
+        <img class="mb-2" src="/imgs/running-mate-logo.png" alt="" style="width: 50%">
+    </div>
+</footer>
+
+</body>
+</html>
