@@ -48,7 +48,8 @@ public class AccountController {
             return "account/sign-up";
         }
 
-        accountService.processNewAccount(signUpForm);
+        Account account = accountService.processNewAccount(signUpForm);
+        accountService.login(account);
 
         return "redirect:/running-mate";
     }
@@ -61,12 +62,13 @@ public class AccountController {
             return "account/checked-email";
         }
 
-        if (!account.getEmailCheckToken().equals(token)){
+        if (!account.isValidToken(token)){
             model.addAttribute("error", "wrong.token");
             return "account/checked-email";
         }
 
         account.completeSignUp();
+        accountService.login(account);
         model.addAttribute("numberOfUser", accountService.numberOfUser());
         model.addAttribute("nickname", account.getNickname());
         return "account/checked-email";
