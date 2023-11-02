@@ -46,4 +46,12 @@ public class AccountService {
                 "&email=" + newAccount.getEmail());
         javaMailSender.send(mailMessage);
     }
+    
+    public Account findByEmail(String email){
+        return accountRepository.findByEmail(email);
+    }
+
+    public long numberOfUser(){
+         return accountRepository.count();
+    }
 }

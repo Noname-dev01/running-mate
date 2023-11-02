@@ -69,6 +69,40 @@ class AccountControllerTest {
         Account account = accountRepository.findByEmail("admin@email.com");
         assertNotNull(account);
         assertNotEquals(account.getPassword(), "123456789");
+        assertNotNull(account.getEmailCheckToken());
         then(javaMailSender).should().send(any(SimpleMailMessage.class));
+    }
+
+    @Test
+    @DisplayName("인증 메일 확인 - 입력값 오류")
+    public void checkEmailToken_with_wrong_input() throws Exception {
+        mockMvc.perform(get("/running-mate/check-email-token")
+                .param("token","sdfsdfsdfsdf")
+                .param("email","email@email.com"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("error"))
+                .andExpect(view().name("account/checked-email"));
+    }
+
+    @Test
+    @DisplayName("인증 메일 확인 - 입력값 정상")
+    public void checkEmailToken() throws Exception {
+
+        Account account = Account.builder()
+                .email("email@email.com")
+                .password("123456789")
+                .nickname("email")
+                .build();
+        Account newAccount = accountRepository.save(account);
+        newAccount.generateEmailCheckToken();
+
+        mockMvc.perform(get("/running-mate/check-email-token")
+                        .param("token",newAccount.getEmailCheckToken())
+                        .param("email",newAccount.getEmail()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeDoesNotExist("error"))
+                .andExpect(model().attributeExists("nickname"))
+                .andExpect(model().attributeExists("numberOfUser"))
+                .andExpect(view().name("account/checked-email"));
     }
 }

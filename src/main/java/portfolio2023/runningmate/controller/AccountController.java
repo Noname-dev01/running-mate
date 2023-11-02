@@ -1,20 +1,22 @@
 package portfolio2023.runningmate.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.domain.validator.SignUpFormValidator;
-import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.service.AccountService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/running-mate")
@@ -49,6 +51,25 @@ public class AccountController {
         accountService.processNewAccount(signUpForm);
 
         return "redirect:/running-mate";
+    }
+
+    @GetMapping("/check-email-token")
+    public String checkEmailToken(String token, String email, Model model){
+        Account account = accountService.findByEmail(email);
+        if (account == null){
+            model.addAttribute("error", "wrong.email");
+            return "account/checked-email";
+        }
+
+        if (!account.getEmailCheckToken().equals(token)){
+            model.addAttribute("error", "wrong.token");
+            return "account/checked-email";
+        }
+
+        account.completeSignUp();
+        model.addAttribute("numberOfUser", accountService.numberOfUser());
+        model.addAttribute("nickname", account.getNickname());
+        return "account/checked-email";
     }
 
 }
