@@ -1,5 +1,7 @@
 package portfolio2023.runningmate.controller;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +10,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import portfolio2023.runningmate.domain.Account;
+import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.repository.AccountRepository;
+import portfolio2023.runningmate.service.AccountService;
 
 import javax.transaction.Transactional;
 
@@ -35,6 +40,8 @@ class AccountControllerTest {
     private AccountRepository accountRepository;
     @MockBean
     private JavaMailSender javaMailSender;
+    @Autowired
+    private AccountService accountService;
 
     @Test
     @DisplayName("회원 가입 화면 뷰 테스트")
@@ -111,5 +118,69 @@ class AccountControllerTest {
                 .andExpect(model().attributeExists("numberOfUser"))
                 .andExpect(view().name("account/checked-email"))
                 .andExpect(authenticated());
+    }
+
+    @BeforeEach
+    void beforeEach(){
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setNickname("admin");
+        signUpForm.setEmail("admin@email.com");
+        signUpForm.setPassword("12345678");
+        accountService.processNewAccount(signUpForm);
+    }
+
+    @AfterEach()
+    void afterEach(){
+        accountRepository.deleteAll();
+    }
+    @Test
+    @DisplayName("이메일 로그인")
+    public void login_with_email() throws Exception {
+
+        mockMvc.perform(post("/running-mate/login")
+                .param("username", "admin@email.com")
+                .param("password","12345678")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate"))
+                .andExpect(authenticated().withUsername("admin"));
+
+    }
+
+    @Test
+    @DisplayName("이메일 로그인")
+    public void login_with_nickname() throws Exception {
+
+        mockMvc.perform(post("/running-mate/login")
+                        .param("username", "admin")
+                        .param("password","12345678")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate"))
+                .andExpect(authenticated().withUsername("admin"));
+
+    }
+
+    @Test
+    @DisplayName("로그인 실패")
+    public void login_fail() throws Exception {
+        mockMvc.perform(post("/running-mate/login")
+                .param("username","fail")
+                .param("password", "fail")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/login?error"))
+                .andExpect(unauthenticated());
+    }
+
+    @Test
+    @WithMockUser
+    @DisplayName("로그아웃")
+    public void logout() throws Exception{
+        mockMvc.perform(post("/running-mate/logout")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate"))
+                .andExpect(unauthenticated());
     }
 }

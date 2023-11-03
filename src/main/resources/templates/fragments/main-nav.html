@@ -49,7 +49,7 @@
           <li><a class="dropdown-item" th:href="@{'/running-mate/profile/' + ${#authentication.name}}">스터디</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item" href="#" th:href="@{'/running-mate/settings/profile'}">설정</a></li>
-          <li><form class="form-inline my-2 my-lg-0" action="#" th:action="@{/logout}" method="post">
+          <li><form class="form-inline my-2 my-lg-0" action="#" th:action="@{/running-mate/logout}" method="post">
             <button class="dropdown-item" type="submit">로그아웃</button>
           </form></li>
         </ul>

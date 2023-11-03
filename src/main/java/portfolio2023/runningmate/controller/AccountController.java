@@ -92,4 +92,10 @@ public class AccountController {
         return "redirect:/running-mate";
     }
 
+    @GetMapping("/login")
+    public String login(){
+
+        return "account/login";
+    }
+
 }

@@ -28,7 +28,17 @@ public class SecurityConfig {
                         ,"/resources/**","/running-mate/check-email-token")
                 .permitAll()
                 .mvcMatchers(HttpMethod.GET, "/profile/*").permitAll()
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+            .and()
+                .formLogin()
+                .loginPage("/running-mate/login")
+                .defaultSuccessUrl("/running-mate")
+                .permitAll()
+            .and()
+                .logout()
+                .logoutSuccessUrl("/running-mate")
+                .logoutUrl("/running-mate/logout");
+
 
         return http.build();
     }
