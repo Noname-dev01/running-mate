@@ -1,7 +1,6 @@
 package portfolio2023.runningmate.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -11,12 +10,12 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import portfolio2023.runningmate.domain.Account;
+import portfolio2023.runningmate.security.CurrentAccount;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.domain.validator.SignUpFormValidator;
 import portfolio2023.runningmate.service.AccountService;
 
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/running-mate")
@@ -32,7 +31,8 @@ public class AccountController {
     }
 
     @GetMapping
-    public String runningMateHome(){
+    public String runningMateHome(@CurrentAccount Account account, Model model){
+        model.addAttribute("account", account);
         return "index";
     }
 

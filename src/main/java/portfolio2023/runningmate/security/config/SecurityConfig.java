@@ -1,4 +1,4 @@
-package portfolio2023.runningmate.config;
+package portfolio2023.runningmate.security.config;
 
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +35,7 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().mvcMatchers("/node_modules/**")
+        return (web) -> web.ignoring().mvcMatchers("/node_modules/**","/resources/**")
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 }
