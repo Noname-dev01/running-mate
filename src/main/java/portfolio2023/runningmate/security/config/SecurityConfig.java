@@ -1,5 +1,6 @@
 package portfolio2023.runningmate.security.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,10 +11,19 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import portfolio2023.runningmate.service.AccountService;
+
+import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final AccountService accountService;
+    private final DataSource dataSource;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -35,6 +45,10 @@ public class SecurityConfig {
                 .defaultSuccessUrl("/running-mate")
                 .permitAll()
             .and()
+                .rememberMe()
+                .userDetailsService(accountService)
+                .tokenRepository(tokenRepository())
+            .and()
                 .logout()
                 .logoutSuccessUrl("/running-mate")
                 .logoutUrl("/running-mate/logout");
@@ -42,6 +56,14 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+    @Bean
+    public PersistentTokenRepository tokenRepository(){
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+        return jdbcTokenRepository;
+    }
+
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
