@@ -1,0 +1,10 @@
+<script type="application/javascript" th:fragment="message-close">
+  $(function () {
+    let $closeBtn = $("#closeBtn");
+    let $messageBox = $("#message-box")
+
+    $closeBtn.click(function (){
+      $messageBox.hide();
+    });
+  });
+</script>

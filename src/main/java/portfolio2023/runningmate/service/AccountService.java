@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import portfolio2023.runningmate.domain.Account;
+import portfolio2023.runningmate.domain.dto.Profile;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.security.UserAccount;
@@ -90,5 +91,14 @@ public class AccountService implements UserDetailsService {
     @Transactional(readOnly = true)
     public Account findByNickname(String nickname) {
         return accountRepository.findByNickname(nickname);
+    }
+
+    public void updateProfile(Account account, Profile profile) {
+        account.setUrl(profile.getUrl());
+        account.setOccupation(profile.getOccupation());
+        account.setLocation(profile.getLocation());
+        account.setIntroduction(profile.getIntroduction());
+        //TODO 프로필 이미지 수정 추가
+        accountRepository.save(account);
     }
 }
