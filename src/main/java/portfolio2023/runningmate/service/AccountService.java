@@ -11,12 +11,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.security.UserAccount;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -72,6 +72,7 @@ public class AccountService implements UserDetailsService {
         SecurityContextHolder.getContext().setAuthentication(token);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String emailOrNickname) throws UsernameNotFoundException {
         Account account = accountRepository.findByEmail(emailOrNickname);
@@ -86,6 +87,7 @@ public class AccountService implements UserDetailsService {
         return new UserAccount(account);
     }
 
+    @Transactional(readOnly = true)
     public Account findByNickname(String nickname) {
         return accountRepository.findByNickname(nickname);
     }

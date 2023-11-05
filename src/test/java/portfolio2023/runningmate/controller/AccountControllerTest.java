@@ -10,7 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
@@ -22,6 +24,7 @@ import javax.transaction.Transactional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -42,6 +45,20 @@ class AccountControllerTest {
     private JavaMailSender javaMailSender;
     @Autowired
     private AccountService accountService;
+
+    @BeforeEach
+    void beforeEach(){
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setNickname("admin");
+        signUpForm.setEmail("admin@email.com");
+        signUpForm.setPassword("12345678");
+        accountService.processNewAccount(signUpForm);
+    }
+
+    @AfterEach()
+    void afterEach(){
+        accountRepository.deleteAll();
+    }
 
     @Test
     @DisplayName("회원 가입 화면 뷰 테스트")
@@ -70,15 +87,15 @@ class AccountControllerTest {
     @DisplayName("회원 가입 처리 - 입력값 정상")
     public void signUp_with_correct_input() throws Exception {
         mockMvc.perform(post("/running-mate/sign-up")
-                        .param("nickname","admin")
-                        .param("email", "admin@email.com")
+                        .param("nickname","test")
+                        .param("email", "test@email.com")
                         .param("password","123456789")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/running-mate"))
                 .andExpect(authenticated());
 
-        Account account = accountRepository.findByEmail("admin@email.com");
+        Account account = accountRepository.findByEmail("test@email.com");
         assertNotNull(account);
         assertNotEquals(account.getPassword(), "123456789");
         assertNotNull(account.getEmailCheckToken());
@@ -120,19 +137,6 @@ class AccountControllerTest {
                 .andExpect(authenticated());
     }
 
-    @BeforeEach
-    void beforeEach(){
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setNickname("admin");
-        signUpForm.setEmail("admin@email.com");
-        signUpForm.setPassword("12345678");
-        accountService.processNewAccount(signUpForm);
-    }
-
-    @AfterEach()
-    void afterEach(){
-        accountRepository.deleteAll();
-    }
     @Test
     @DisplayName("이메일 로그인")
     public void login_with_email() throws Exception {
@@ -182,5 +186,16 @@ class AccountControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/running-mate"))
                 .andExpect(unauthenticated());
+    }
+
+    @Test
+    @DisplayName("프로필 뷰 테스트")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void profileView() throws Exception {
+        mockMvc.perform(get("/running-mate/profile/admin"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("isOwner"))
+                .andExpect(view().name("account/profile"));
     }
 }

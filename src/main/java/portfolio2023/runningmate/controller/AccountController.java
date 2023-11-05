@@ -102,7 +102,7 @@ public class AccountController {
             throw new IllegalArgumentException(nickname + "에 해당하는 사용자가 없습니다.");
         }
 
-        model.addAttribute(byNickname);
+        model.addAttribute("account", byNickname);
         model.addAttribute("isOwner", byNickname.equals(account));
         return "account/profile";
     }
