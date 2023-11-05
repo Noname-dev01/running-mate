@@ -85,4 +85,8 @@ public class AccountService implements UserDetailsService {
 
         return new UserAccount(account);
     }
+
+    public Account findByNickname(String nickname) {
+        return accountRepository.findByNickname(nickname);
+    }
 }
