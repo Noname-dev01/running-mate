@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
@@ -34,6 +35,8 @@ public class SettingsControllerTest {
     AccountRepository accountRepository;
     @Autowired
     AccountService accountService;
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @BeforeEach
     void beforeEach(){
@@ -83,12 +86,53 @@ public class SettingsControllerTest {
                         .param("introduction", introduction)
                         .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(view().name("settings/profile"))
+                .andExpect(view().name("settings/update-profile"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("profile"))
                 .andExpect(model().hasErrors());
 
         Account account = accountRepository.findByNickname("admin");
         assertNull(account.getIntroduction());
+    }
+
+    @Test
+    @DisplayName("패스워드 수정 폼")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updatePassword_form() throws Exception {
+        mockMvc.perform(get("/running-mate/settings/password"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("passwordForm"));
+    }
+
+    @Test
+    @DisplayName("패스워드 수정 - 정상")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updatePassword_success() throws Exception {
+        mockMvc.perform(post("/running-mate/settings/password")
+                .param("newPassword", "12345678")
+                .param("newPasswordCheck","12345678")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/settings/password"))
+                .andExpect(flash().attributeExists("message"));
+
+        Account account = accountService.findByNickname("admin");
+        assertTrue(passwordEncoder.matches("12345678",account.getPassword()));
+    }
+
+    @Test
+    @DisplayName("패스워드 수정 - 입력값 에러 - 패스워드확인 불일치")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updatePassword_fail() throws Exception {
+        mockMvc.perform(post("/running-mate/settings/password")
+                .param("newPassword","12345678")
+                .param("newPasswordCheck","111111111")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/update-password"))
+                .andExpect(model().hasErrors())
+                .andExpect(model().attributeExists("passwordForm"))
+                .andExpect(model().attributeExists("account"));
     }
 }
