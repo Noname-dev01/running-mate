@@ -19,14 +19,4 @@ public class Profile {
 
     private String profileImage;
 
-    public Profile() {
-    }
-
-    public Profile(Account account) {
-        this.introduction = account.getIntroduction();
-        this.url = account.getUrl();
-        this.occupation = account.getOccupation();
-        this.location = account.getLocation();
-        this.profileImage = account.getProfileImage();
-    }
 }

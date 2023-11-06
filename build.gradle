@@ -23,6 +23,8 @@ repositories {
 }
 
 dependencies {
+	//Model Mapper
+	implementation 'org.modelmapper:modelmapper:2.3.6'
 	//mail sender
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	//검증(Validation)

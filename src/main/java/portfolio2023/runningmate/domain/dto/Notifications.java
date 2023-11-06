@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import portfolio2023.runningmate.domain.Account;
 
 @Data
-@NoArgsConstructor
 public class Notifications {
 
     private boolean runningCreatedByEmail;
@@ -20,12 +19,4 @@ public class Notifications {
 
     private boolean runningUpdatedByWeb;
 
-    public Notifications(Account account) {
-        this.runningCreatedByEmail = account.isRunningCreatedByEmail();
-        this.runningCreatedByWeb = account.isRunningCreatedByWeb();
-        this.runningRecruitByEmail = account.isRunningRecruitByEmail();
-        this.runningRecruitByWeb = account.isRunningRecruitByWeb();
-        this.runningUpdatedByEmail = account.isRunningUpdatedByEmail();
-        this.runningUpdatedByWeb = account.isRunningUpdatedByWeb();
-    }
 }
