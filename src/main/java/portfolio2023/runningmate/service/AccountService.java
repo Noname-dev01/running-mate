@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import portfolio2023.runningmate.domain.Account;
+import portfolio2023.runningmate.domain.dto.Notifications;
 import portfolio2023.runningmate.domain.dto.Profile;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.repository.AccountRepository;
@@ -104,6 +105,16 @@ public class AccountService implements UserDetailsService {
 
     public void updatePassword(Account account, String newPassword) {
         account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
+    public void updateNotifications(Account account, Notifications notifications) {
+        account.setRunningCreatedByWeb(notifications.isRunningCreatedByWeb());
+        account.setRunningCreatedByEmail(notifications.isRunningCreatedByEmail());
+        account.setRunningRecruitByWeb(notifications.isRunningRecruitByWeb());
+        account.setRunningRecruitByEmail(notifications.isRunningRecruitByEmail());
+        account.setRunningUpdatedByWeb(notifications.isRunningUpdatedByWeb());
+        account.setRunningUpdatedByEmail(notifications.isRunningUpdatedByEmail());
         accountRepository.save(account);
     }
 }

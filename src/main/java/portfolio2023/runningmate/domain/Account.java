@@ -44,15 +44,15 @@ public class Account {
 
     private boolean runningCreatedByEmail;
 
-    private boolean runningCreatedByWeb;
+    private boolean runningCreatedByWeb =true;
 
     private boolean runningRecruitByEmail;
 
-    private boolean runningRecruitByWeb;
+    private boolean runningRecruitByWeb = true;
 
     private boolean runningUpdatedByEmail;
 
-    private boolean runningUpdatedByWeb;
+    private boolean runningUpdatedByWeb = true;
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();

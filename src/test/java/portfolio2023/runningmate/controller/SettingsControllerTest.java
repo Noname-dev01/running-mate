@@ -135,4 +135,31 @@ public class SettingsControllerTest {
                 .andExpect(model().attributeExists("passwordForm"))
                 .andExpect(model().attributeExists("account"));
     }
+
+    @Test
+    @DisplayName("알림 설정 폼")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateNotifications_form() throws Exception {
+        mockMvc.perform(get("/running-mate/settings/notifications"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("notifications"));
+    }
+
+    @Test
+    @DisplayName("알림 설정 - 정상")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateNotifications_success() throws Exception {
+        mockMvc.perform(post("/running-mate/settings/notifications")
+                        .param("runningUpdatedByEmail", "true")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/settings/notifications"))
+                .andExpect(flash().attributeExists("message"));
+
+        Account account = accountService.findByNickname("admin");
+        assertFalse(account.isRunningCreatedByEmail());
+        assertFalse(account.isRunningRecruitByEmail());
+        assertTrue(account.isRunningUpdatedByEmail());
+    }
 }

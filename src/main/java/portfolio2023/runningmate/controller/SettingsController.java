@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import portfolio2023.runningmate.domain.Account;
+import portfolio2023.runningmate.domain.dto.Notifications;
 import portfolio2023.runningmate.domain.dto.PasswordForm;
 import portfolio2023.runningmate.domain.dto.Profile;
 import portfolio2023.runningmate.domain.validator.PasswordFormValidator;
@@ -70,5 +71,25 @@ public class SettingsController {
         accountService.updatePassword(account, passwordForm.getNewPassword());
         attributes.addFlashAttribute("message", "패스워드를 변경했습니다.");
         return "redirect:/running-mate/settings/password";
+    }
+
+    @GetMapping("/settings/notifications")
+    public String updateNotificationsForm(@CurrentAccount Account account, Model model){
+        model.addAttribute(account);
+        model.addAttribute(new Notifications(account));
+        return "settings/update-notifications";
+    }
+
+    @PostMapping("/settings/notifications")
+    public String updateNotifications(@CurrentAccount Account account, @Valid Notifications notifications, Errors errors,
+                                      Model model, RedirectAttributes attributes){
+        if (errors.hasErrors()){
+            model.addAttribute(account);
+            return "settings/update-notifications";
+        }
+
+        accountService.updateNotifications(account, notifications);
+        attributes.addFlashAttribute("message", "알림 설정을 변경했습니다.");
+        return "redirect:/running-mate/settings/notifications";
     }
 }

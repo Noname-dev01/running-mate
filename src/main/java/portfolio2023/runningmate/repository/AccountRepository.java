@@ -1,6 +1,7 @@
 package portfolio2023.runningmate.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 import portfolio2023.runningmate.domain.Account;
 
 public interface AccountRepository extends JpaRepository<Account,Long> {
