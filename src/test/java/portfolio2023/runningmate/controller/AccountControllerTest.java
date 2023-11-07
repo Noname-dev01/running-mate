@@ -21,6 +21,8 @@ import portfolio2023.runningmate.service.AccountService;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
@@ -198,4 +200,48 @@ class AccountControllerTest {
                 .andExpect(model().attributeExists("isOwner"))
                 .andExpect(view().name("account/profile"));
     }
+
+    @Test
+    @DisplayName("패스워드 기억나지 않을 경우 - 이메일 로그인")
+    public void email_login_form() throws Exception{
+        mockMvc.perform(get("/running-mate/email-login"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("패스워드 기억나지 않을 경우 - 로그인 링크 전송 성공")
+    public void email_login_success() throws Exception{
+        Account account = accountService.findByEmail("admin@email.com");
+        account.setEmailCheckTokenGeneratedAt(LocalDateTime.now().minusMinutes(5));
+
+        mockMvc.perform(post("/running-mate/email-login")
+                        .param("email", "admin@email.com")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(flash().attributeExists("message"));
+
+        assertNotNull(account.getEmailCheckToken());
+    }
+
+    @Test
+    @DisplayName("패스워드 기억나지 않을 경우 - 로그인 링크 전송 실패(5분 마다 전송 가능)")
+    public void email_login_fail_5min() throws Exception{
+        mockMvc.perform(post("/running-mate/email-login")
+                        .param("email", "admin@email.com")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("error"));
+
+    }
+
+    @Test
+    @DisplayName("패스워드 기억나지 않을 경우 - 로그인 링크 전송 실패(유효하지 않은 이메일)")
+    public void email_login_fail_wrong_email() throws Exception{
+        mockMvc.perform(post("/running-mate/email-login")
+                        .param("email", "admin1@email.com")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("error"));
+    }
+
 }
