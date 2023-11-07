@@ -162,4 +162,42 @@ public class SettingsControllerTest {
         assertFalse(account.isRunningRecruitByEmail());
         assertTrue(account.isRunningUpdatedByEmail());
     }
+
+    @Test
+    @DisplayName("닉네임 수정 폼")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateAccount_form() throws Exception {
+        mockMvc.perform(get("/running-mate/settings/account"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("nicknameForm"))
+                .andExpect(view().name("settings/account"));
+    }
+
+    @Test
+    @DisplayName("닉네임 수정 - 정상")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateAccount_success() throws Exception{
+        mockMvc.perform(post("/running-mate/settings/account")
+                        .param("nickname", "admin1")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(model().hasNoErrors())
+                .andExpect(flash().attributeExists("message"));
+
+        Account account = accountService.findByEmail("admin@email.com");
+        assertEquals("admin1", account.getNickname());
+    }
+
+    @Test
+    @DisplayName("닉네임 수정 - 입력값 에러")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateAccount_fail() throws Exception{
+        mockMvc.perform(post("/running-mate/settings/account")
+                        .param("nickname", "admin")
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(model().hasErrors())
+                .andExpect(model().attributeExists("account"));
+    }
 }
