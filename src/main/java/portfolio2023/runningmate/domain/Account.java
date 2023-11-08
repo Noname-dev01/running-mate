@@ -5,6 +5,7 @@ import org.hibernate.annotations.CollectionId;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -53,6 +54,9 @@ public class Account {
     private boolean runningUpdatedByEmail;
 
     private boolean runningUpdatedByWeb = true;
+
+    @OneToMany
+    private Set<Tag> tags;
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
