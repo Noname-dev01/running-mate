@@ -5,13 +5,53 @@
   <title>러닝 메이트</title>
   <link rel="stylesheet" type="text/css" href="/node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" type="text/css" href="/node_modules/font-awesome/css/font-awesome.min.css" />
+  <link rel="stylesheet" type="text/css" href="/node_modules/@yaireo/tagify/dist/tagify.css">
   <script src="/node_modules/jquery/dist/jquery.min.js"></script>
   <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/node_modules/jdenticon/dist/jdenticon.min.js"></script>
   <style>
-    .container {
+    .container{
       max-width: 100%;
     }
+    .tagify{
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .tagify--outside{
+      border: 0;
+    }
+
+    .tagify--outside .tagify__input{
+      order: -1;
+      flex: 100%;
+      border: 1px solid var(--tags-border-color);
+      background-color: white;
+      margin-bottom: 1em;
+      transition: .1s;
+    }
+
+    .tagify--outside .tagify__input:hover{ border-color:var(--tags-hover-border-color); }
+    .tagify--outside.tagify--focus .tagify__input{
+      transition:0s;
+      border-color: var(--tags-focus-border-color);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    }
+
+    body,
+    input,
+    button,
+    select,
+    optgroup,
+    textarea,
+    .tooltip,
+    .popover {
+      font-family: -apple-system, BlinkMacSystemFont, "Noto Sans KR", "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    }
+
   </style>
 </head>
 </html>

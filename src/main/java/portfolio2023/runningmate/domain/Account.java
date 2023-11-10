@@ -1,10 +1,10 @@
 package portfolio2023.runningmate.domain;
 
 import lombok.*;
-import org.hibernate.annotations.CollectionId;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -55,8 +55,8 @@ public class Account {
 
     private boolean runningUpdatedByWeb = true;
 
-    @OneToMany
-    private Set<Tag> tags;
+    @ManyToMany
+    private Set<Tag> tags = new HashSet<>();
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();

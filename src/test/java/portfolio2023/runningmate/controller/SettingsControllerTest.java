@@ -1,5 +1,6 @@
 package portfolio2023.runningmate.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -7,13 +8,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import portfolio2023.runningmate.domain.Account;
+import portfolio2023.runningmate.domain.Tag;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
+import portfolio2023.runningmate.domain.dto.TagForm;
 import portfolio2023.runningmate.repository.AccountRepository;
+import portfolio2023.runningmate.repository.TagRepository;
 import portfolio2023.runningmate.service.AccountService;
 
 import javax.transaction.Transactional;
@@ -37,6 +42,10 @@ public class SettingsControllerTest {
     AccountService accountService;
     @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
+    ObjectMapper objectMapper;
+    @Autowired
+    TagRepository tagRepository;
 
     @BeforeEach
     void beforeEach(){
@@ -199,5 +208,56 @@ public class SettingsControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(model().hasErrors())
                 .andExpect(model().attributeExists("account"));
+    }
+
+    @Test
+    @DisplayName("러닝의 목적 수정 폼")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateTag_form() throws Exception{
+        mockMvc.perform(get("/running-mate/settings/tags"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("settings/tags"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("whiteList"))
+                .andExpect(model().attributeExists("tags"));
+    }
+
+    @Test
+    @DisplayName("계정에 러닝의 목적 추가")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void addTag() throws Exception{
+        TagForm tagForm = new TagForm();
+        tagForm.setTagTitle("newTag");
+
+        mockMvc.perform(post("/running-mate/settings/tags/add")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tagForm))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        Tag newTag = tagRepository.findByTitle("newTag");
+        assertNotNull(newTag);
+        assertTrue(accountRepository.findByNickname("admin").getTags().contains(newTag));
+    }
+
+    @Test
+    @DisplayName("계정에 러닝의 목적 삭제")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void removeTag() throws Exception{
+        Account account = accountRepository.findByNickname("admin");
+        Tag newTag = tagRepository.save(Tag.builder().title("newTag").build());
+        accountService.addTag(account, newTag);
+
+        assertTrue(account.getTags().contains(newTag));
+
+        TagForm tagForm = new TagForm();
+        tagForm.setTagTitle("newTag");
+        mockMvc.perform(post("/running-mate/settings/tags/remove")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tagForm))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        assertFalse(account.getTags().contains(newTag));
     }
 }
