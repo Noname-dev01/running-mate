@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Tag;
+import portfolio2023.runningmate.domain.Zone;
 import portfolio2023.runningmate.domain.dto.*;
 import portfolio2023.runningmate.domain.validator.NicknameValidator;
 import portfolio2023.runningmate.domain.validator.PasswordFormValidator;
 import portfolio2023.runningmate.repository.TagRepository;
+import portfolio2023.runningmate.repository.ZoneRepository;
 import portfolio2023.runningmate.security.CurrentAccount;
 import portfolio2023.runningmate.service.AccountService;
 
@@ -36,19 +38,20 @@ public class SettingsController {
     private final NicknameValidator nicknameValidator;
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
+    private final ZoneRepository zoneRepository;
 
     @InitBinder("passwordForm")
-    public void PasswordFormInitBinder(WebDataBinder webDataBinder){
+    public void PasswordFormInitBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(new PasswordFormValidator());
     }
 
     @InitBinder("nicknameForm")
-    public void nicknameFormInitBinder(WebDataBinder webDataBinder){
+    public void nicknameFormInitBinder(WebDataBinder webDataBinder) {
         webDataBinder.addValidators(nicknameValidator);
     }
 
     @GetMapping("/settings/profile")
-    public String updateProfileForm(@CurrentAccount Account account, Model model){
+    public String updateProfileForm(@CurrentAccount Account account, Model model) {
         model.addAttribute(account);
         model.addAttribute(modelMapper.map(account, Profile.class));
         return "settings/update-profile";
@@ -56,19 +59,19 @@ public class SettingsController {
 
     @PostMapping("/settings/profile")
     public String updateProfile(@CurrentAccount Account account, @Valid Profile profile, Errors errors,
-                                Model model, RedirectAttributes attributes){
-        if (errors.hasErrors()){
+                                Model model, RedirectAttributes attributes) {
+        if (errors.hasErrors()) {
             model.addAttribute(account);
             return "settings/update-profile";
         }
 
-        accountService.updateProfile(account,profile);
+        accountService.updateProfile(account, profile);
         attributes.addFlashAttribute("message", "프로필을 수정했습니다.");
         return "redirect:/running-mate/settings/profile";
     }
 
     @GetMapping("/settings/password")
-    public String updatePasswordForm(@CurrentAccount Account account, Model model){
+    public String updatePasswordForm(@CurrentAccount Account account, Model model) {
         model.addAttribute(account);
         model.addAttribute(new PasswordForm());
         return "settings/update-password";
@@ -76,9 +79,9 @@ public class SettingsController {
 
     @PostMapping("/settings/password")
     public String updatePassword(@CurrentAccount Account account, @Valid PasswordForm passwordForm, Errors errors,
-                                 Model model, RedirectAttributes attributes){
+                                 Model model, RedirectAttributes attributes) {
 
-        if (errors.hasErrors()){
+        if (errors.hasErrors()) {
             model.addAttribute(account);
             return "settings/update-password";
         }
@@ -89,7 +92,7 @@ public class SettingsController {
     }
 
     @GetMapping("/settings/notifications")
-    public String updateNotificationsForm(@CurrentAccount Account account, Model model){
+    public String updateNotificationsForm(@CurrentAccount Account account, Model model) {
         model.addAttribute(account);
         model.addAttribute(modelMapper.map(account, Notifications.class));
         return "settings/update-notifications";
@@ -97,8 +100,8 @@ public class SettingsController {
 
     @PostMapping("/settings/notifications")
     public String updateNotifications(@CurrentAccount Account account, @Valid Notifications notifications, Errors errors,
-                                      Model model, RedirectAttributes attributes){
-        if (errors.hasErrors()){
+                                      Model model, RedirectAttributes attributes) {
+        if (errors.hasErrors()) {
             model.addAttribute(account);
             return "settings/update-notifications";
         }
@@ -109,7 +112,7 @@ public class SettingsController {
     }
 
     @GetMapping("/settings/account")
-    public String updateAccountForm(@CurrentAccount Account account, Model model){
+    public String updateAccountForm(@CurrentAccount Account account, Model model) {
         model.addAttribute(account);
         model.addAttribute(modelMapper.map(account, NicknameForm.class));
         return "settings/account";
@@ -117,8 +120,8 @@ public class SettingsController {
 
     @PostMapping("/settings/account")
     public String updateAccount(@CurrentAccount Account account, @Valid NicknameForm nicknameForm, Errors errors,
-                                Model model, RedirectAttributes attributes){
-        if (errors.hasErrors()){
+                                Model model, RedirectAttributes attributes) {
+        if (errors.hasErrors()) {
             model.addAttribute(account);
             return "settings/account";
         }
@@ -140,10 +143,10 @@ public class SettingsController {
 
     @PostMapping("/settings/tags/add")
     @ResponseBody
-    public ResponseEntity addTag(@CurrentAccount Account account, @RequestBody TagForm tagForm){
+    public ResponseEntity addTag(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
         String title = tagForm.getTagTitle();
         Tag tag = tagRepository.findByTitle(title);
-        if (tag == null){
+        if (tag == null) {
             tag = tagRepository.save(Tag.builder().title(tagForm.getTagTitle()).build());
         }
 
@@ -153,14 +156,52 @@ public class SettingsController {
 
     @PostMapping("/settings/tags/remove")
     @ResponseBody
-    public ResponseEntity removeTag(@CurrentAccount Account account, @RequestBody TagForm tagForm){
+    public ResponseEntity removeTag(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
         String title = tagForm.getTagTitle();
         Tag tag = tagRepository.findByTitle(title);
-        if (tag == null){
+        if (tag == null) {
             return ResponseEntity.badRequest().build();
         }
 
         accountService.removeTag(account, tag);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/settings/zones")
+    public String updateZonesForm(@CurrentAccount Account account, Model model) throws JsonProcessingException {
+        model.addAttribute(account);
+
+        Set<Zone> zones = accountService.getZones(account);
+        model.addAttribute("zones", zones.stream().map(Zone::toString).collect(Collectors.toList()));
+
+        List<String> allZones = zoneRepository.findAll().stream().map(Zone::toString).collect(Collectors.toList());
+        model.addAttribute("whiteList", objectMapper.writeValueAsString(allZones));
+
+        return "settings/zones";
+    }
+
+    @PostMapping("/settings/zones/add")
+    @ResponseBody
+    public ResponseEntity addZone(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm){
+        Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
+        if (zone == null){
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountService.addZone(account, zone);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/settings/zones/remove")
+    @ResponseBody
+    public ResponseEntity removeZone(@CurrentAccount Account account, @RequestBody ZoneForm zoneForm){
+        Zone zone = zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
+        if (zone == null){
+            return ResponseEntity.badRequest().build();
+        }
+
+        accountService.removeZone(account, zone);
+        return ResponseEntity.ok().build();
+    }
 }
+

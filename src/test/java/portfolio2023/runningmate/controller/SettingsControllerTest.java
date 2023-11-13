@@ -15,10 +15,13 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Tag;
+import portfolio2023.runningmate.domain.Zone;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.domain.dto.TagForm;
+import portfolio2023.runningmate.domain.dto.ZoneForm;
 import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.repository.TagRepository;
+import portfolio2023.runningmate.repository.ZoneRepository;
 import portfolio2023.runningmate.service.AccountService;
 
 import javax.transaction.Transactional;
@@ -34,18 +37,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class SettingsControllerTest {
 
-    @Autowired
-    MockMvc mockMvc;
-    @Autowired
-    AccountRepository accountRepository;
-    @Autowired
-    AccountService accountService;
-    @Autowired
-    PasswordEncoder passwordEncoder;
-    @Autowired
-    ObjectMapper objectMapper;
-    @Autowired
-    TagRepository tagRepository;
+    @Autowired MockMvc mockMvc;
+    @Autowired AccountRepository accountRepository;
+    @Autowired AccountService accountService;
+    @Autowired PasswordEncoder passwordEncoder;
+    @Autowired ObjectMapper objectMapper;
+    @Autowired TagRepository tagRepository;
+    @Autowired ZoneRepository zoneRepository;
+
+    private Zone testZone = Zone.builder().city("test").localNameOfCity("테스트시").province("테스트주").build();
 
     @BeforeEach
     void beforeEach(){
@@ -54,11 +54,13 @@ public class SettingsControllerTest {
         signUpForm.setEmail("admin@email.com");
         signUpForm.setPassword("12345678");
         accountService.processNewAccount(signUpForm);
+        zoneRepository.save(testZone);
     }
 
     @AfterEach()
     void afterEach(){
         accountRepository.deleteAll();
+        zoneRepository.deleteAll();
     }
 
 
@@ -259,5 +261,54 @@ public class SettingsControllerTest {
                 .andExpect(status().isOk());
 
         assertFalse(account.getTags().contains(newTag));
+    }
+
+    @Test
+    @DisplayName("계정에 러닝 희망 지역 폼")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateZoneForm() throws Exception{
+        mockMvc.perform(get("/running-mate/settings/zones"))
+                .andExpect(view().name("settings/zones"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("whiteList"))
+                .andExpect(model().attributeExists("zones"));
+    }
+
+    @Test
+    @DisplayName("계정에 러닝 희망 지역 추가")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void addZone() throws Exception {
+        ZoneForm zoneForm = new ZoneForm();
+        zoneForm.setZoneName(testZone.toString());
+
+        mockMvc.perform(post("/running-mate/settings/zones/add")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(zoneForm))
+                .with(csrf()))
+                .andExpect(status().isOk());
+
+        Account account = accountRepository.findByNickname("admin");
+        Zone zone = zoneRepository.findByCityAndProvince(testZone.getCity(), testZone.getProvince());
+        assertTrue(account.getZones().contains(zone));
+    }
+
+    @Test
+    @DisplayName("계정에 러닝 희망 지역 삭제")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void removeZone() throws Exception {
+        Account account = accountRepository.findByNickname("admin");
+        Zone zone = zoneRepository.findByCityAndProvince(testZone.getCity(), testZone.getProvince());
+        accountService.addZone(account, zone);
+
+        ZoneForm zoneForm = new ZoneForm();
+        zoneForm.setZoneName(testZone.toString());
+
+        mockMvc.perform(post("/running-mate/settings/zones/remove")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(zoneForm))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        assertFalse(account.getZones().contains(zone));
     }
 }
