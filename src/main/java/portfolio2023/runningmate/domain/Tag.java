@@ -2,7 +2,10 @@ package portfolio2023.runningmate.domain;
 
 import lombok.*;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -14,6 +17,5 @@ public class Tag {
 
     @Column(unique = true, nullable = false)
     private String title;
-
 
 }
