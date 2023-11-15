@@ -8,25 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
+import portfolio2023.runningmate.mail.EmailService;
 import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.service.AccountService;
 
 import javax.transaction.Transactional;
-
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -44,7 +40,7 @@ class AccountControllerTest {
     @Autowired
     private AccountRepository accountRepository;
     @MockBean
-    private JavaMailSender javaMailSender;
+    private EmailService emailService;
     @Autowired
     private AccountService accountService;
 
@@ -101,7 +97,8 @@ class AccountControllerTest {
         assertNotNull(account);
         assertNotEquals(account.getPassword(), "123456789");
         assertNotNull(account.getEmailCheckToken());
-//        then(javaMailSender).should().send(any(SimpleMailMessage.class));
+//        then(emailService).should().sendEmail(any(EmailMessage.class));
+        //TODO 이메일 테스트 수정 필요
     }
 
     @Test
