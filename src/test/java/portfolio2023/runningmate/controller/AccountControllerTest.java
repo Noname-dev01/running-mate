@@ -14,6 +14,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
+import portfolio2023.runningmate.mail.EmailMessage;
 import portfolio2023.runningmate.mail.EmailService;
 import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.service.AccountService;
@@ -23,6 +24,8 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.then;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -43,20 +46,6 @@ class AccountControllerTest {
     private EmailService emailService;
     @Autowired
     private AccountService accountService;
-
-    @BeforeEach
-    void beforeEach(){
-        SignUpForm signUpForm = new SignUpForm();
-        signUpForm.setNickname("admin");
-        signUpForm.setEmail("admin@email.com");
-        signUpForm.setPassword("12345678");
-        accountService.processNewAccount(signUpForm);
-    }
-
-    @AfterEach()
-    void afterEach(){
-        accountRepository.deleteAll();
-    }
 
     @Test
     @DisplayName("회원 가입 화면 뷰 테스트")
@@ -84,6 +73,8 @@ class AccountControllerTest {
     @Test
     @DisplayName("회원 가입 처리 - 입력값 정상")
     public void signUp_with_correct_input() throws Exception {
+        accountRepository.deleteAll();
+
         mockMvc.perform(post("/running-mate/sign-up")
                         .param("nickname","test")
                         .param("email", "test@email.com")
@@ -97,8 +88,7 @@ class AccountControllerTest {
         assertNotNull(account);
         assertNotEquals(account.getPassword(), "123456789");
         assertNotNull(account.getEmailCheckToken());
-//        then(emailService).should().sendEmail(any(EmailMessage.class));
-        //TODO 이메일 테스트 수정 필요
+        then(emailService).should().sendEmail(any(EmailMessage.class));
     }
 
     @Test
@@ -137,8 +127,13 @@ class AccountControllerTest {
     }
 
     @Test
-    @DisplayName("이메일 로그인")
+    @DisplayName("로그인_이메일 사용")
     public void login_with_email() throws Exception {
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setNickname("admin");
+        signUpForm.setEmail("admin@email.com");
+        signUpForm.setPassword("12345678");
+        accountService.processNewAccount(signUpForm);
 
         mockMvc.perform(post("/running-mate/login")
                 .param("username", "admin@email.com")
@@ -151,8 +146,14 @@ class AccountControllerTest {
     }
 
     @Test
-    @DisplayName("이메일 로그인")
+    @DisplayName("로그인_닉네임 사용")
     public void login_with_nickname() throws Exception {
+
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setNickname("admin");
+        signUpForm.setEmail("admin@email.com");
+        signUpForm.setPassword("12345678");
+        accountService.processNewAccount(signUpForm);
 
         mockMvc.perform(post("/running-mate/login")
                         .param("username", "admin")
@@ -189,8 +190,15 @@ class AccountControllerTest {
 
     @Test
     @DisplayName("프로필 뷰 테스트")
-    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void profileView() throws Exception {
+        SignUpForm signUpForm = new SignUpForm();
+        signUpForm.setNickname("admin");
+        signUpForm.setEmail("admin@email.com");
+        signUpForm.setPassword("12345678");
+        accountService.processNewAccount(signUpForm);
+        Account account = accountService.findByNickname("admin");
+        accountService.login(account);
+
         mockMvc.perform(get("/running-mate/profile/admin"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("account"))
@@ -208,8 +216,15 @@ class AccountControllerTest {
     @Test
     @DisplayName("패스워드 기억나지 않을 경우 - 로그인 링크 전송 성공")
     public void email_login_success() throws Exception{
-        Account account = accountService.findByEmail("admin@email.com");
-        account.setEmailCheckTokenGeneratedAt(LocalDateTime.now().minusMinutes(5));
+        Account account = new Account();
+        account.setEmail("admin@email.com");
+        account.setNickname("admin");
+        account.setPassword("12345678");
+        account.generateEmailCheckToken();
+        accountRepository.save(account);
+
+        Account account1 = accountService.findByEmail("admin@email.com");
+        account1.setEmailCheckTokenGeneratedAt(LocalDateTime.now().minusMinutes(5));
 
         mockMvc.perform(post("/running-mate/email-login")
                         .param("email", "admin@email.com")
@@ -218,6 +233,7 @@ class AccountControllerTest {
                 .andExpect(flash().attributeExists("message"));
 
         assertNotNull(account.getEmailCheckToken());
+        then(emailService).should().sendEmail(any(EmailMessage.class));
     }
 
     @Test
