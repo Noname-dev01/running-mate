@@ -4,9 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter @Setter @EqualsAndHashCode(of = "id")
@@ -14,6 +12,7 @@ import java.util.UUID;
 public class Account {
 
     @Id @GeneratedValue
+    @Column(name = "account_id")
     private Long id;
 
     @Column(unique = true)

@@ -1,0 +1,13 @@
+<div th:fragment="editor-script">
+    <script src="/node_modules/summernote/dist/summernote-bs4.js"></script>
+    <script type="application/javascript">
+        $(function (){
+            $('.editor').summernote({
+                fontNames: ['Arial','Arial Black', 'Comic Sans MS', 'Courier New', 'Noto Sans KR', 'Merriweather'],
+                placeholder: '러닝크루의 목표, 일정, 진행방식 그리고 모집중인 러닝 크루원 등 러닝 크루에 대해 자세히 적어 주세요.',
+                tabSize: 2,
+                height: 300
+            })
+        })
+    </script>
+</div>

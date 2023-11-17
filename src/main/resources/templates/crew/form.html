@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/head.html :: head"></head>
+<body class="bg-light">
+<div th:replace="fragments/main-nav.html :: main-nav"></div>
+
+<div class="container">
+  <div class="py-5 text-center">
+    <h2>러닝 크루 개설</h2>
+  </div>
+  <div class="d-flex justify-content-center">
+    <form class="needs-validation col-sm-10" th:action="@{/running-mate/new-crew}" th:object="${crewForm}" method="post" novalidate>
+      <div class="form-group">
+        <label for="path">러닝 크루 URL</label>
+        <input id="path" type="text" th:field="*{path}" class="form-control"
+               placeholder="예) crew-path" aria-describedby="pathHelp" required min="2" max="20">
+        <small id="pathHelp" class="form-text text-muted">
+          공백없이 문자, 숫자, 대시(-)와 언더바(_)만 2자 이상 20자 이내로 입력하세요. 러닝 크루 홈 주소에 사용합니다. 예) /crew/<b>crew-path</b>
+        </small>
+        <small class="invalid-feedback">러닝 크루 경로를 입력하세요.</small>
+        <small class="form-text text-danger" th:if="${#fields.hasErrors('path')}" th:errors="*{path}">Path Error</small>
+      </div>
+
+      <div class="form-group">
+        <label for="title">러닝 크루 이름</label>
+        <input id="title" type="text" th:field="*{title}" class="form-control"
+               placeholder="러닝 크루 이름" aria-describedby="titleHelp" required max="50">
+        <small id="titleHelp" class="form-text text-muted">
+          러닝 크루 이름을 50자 이내로 입력하세요.
+        </small>
+        <small class="invalid-feedback">러닝 크루 이름을 입력하세요.</small>
+        <small class="form-text text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Title Error</small>
+      </div>
+
+      <div class="form-group">
+        <label for="shortDescription">짧은 소개</label>
+        <textarea id="shortDescription" typeof="textarea" th:field="*{shortDescription}" class="form-control"
+                  placeholder="러닝 크루를 짧게 소개해 주세요." aria-describedby="shortDescriptionHelp" required maxlength="100"></textarea>
+        <small id="shortDescriptionHelp" class="form-text text-muted">
+          100자 이내로 러닝 크루를 짧은 소개해 주세요.
+        </small>
+        <small class="invalid-feedback">짧은 소개를 입력하세요.</small>
+        <small class="form-text text-danger" th:if="${#fields.hasErrors('shortDescription')}" th:errors="*{shortDescription}">ShortDescription Error</small>
+      </div>
+
+      <div class="form-group">
+        <label for="fullDescription">상세 소개</label>
+        <textarea id="fullDescription" typeof="textarea" th:field="*{fullDescription}" class="editor form-control"
+                  placeholder="러닝 크루를 자세히 설명해주세요." aria-describedby="fullDescriptionHelp" required></textarea>
+        <small id="fullDescriptionHelp" class="form-text text-muted">
+          러닝크루의 목표, 일정, 진행 방식 그리고 모집중인 러닝 크루원 등 러닝 크루에 대해 자세히 적어 주세요.
+        </small>
+        <small class="invalid-feedback">상세 소개를 입력하세요.</small>
+        <small class="form-text text-danger" th:if="${#fields.hasErrors('fullDescription')}" th:errors="*{fullDescription}">FullDescription Error</small>
+      </div>
+
+      <div class="form-group d-grid gap-1">
+        <button class="btn btn-primary" type="submit"
+                aria-describedby="submitHelp">러닝 크루 만들기</button>
+      </div>
+    </form>
+  </div>
+
+  <div th:replace="fragments/footer.html :: footer"></div>
+</div>
+<!-- JavaScript Bundle with Popper -->
+<script th:replace="fragments/form-validation.html :: form-validation"></script>
+<script th:replace="fragments/editor-script.html :: editor-script"></script>
+</body>
+</html>

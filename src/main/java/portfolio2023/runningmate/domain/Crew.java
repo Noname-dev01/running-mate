@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -14,11 +15,12 @@ public class Crew {
     @Id @GeneratedValue
     private Long id;
 
-    @OneToMany
-    private Set<Account> managers;
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account manager;
 
     @OneToMany
-    private Set<Account> members;
+    private Set<Account> members = new HashSet<>();
 
     @Column(unique = true)
     private String path;
@@ -33,12 +35,6 @@ public class Crew {
     @Lob @Basic(fetch = FetchType.EAGER)
     private String image;
 
-    @OneToMany
-    private Set<Tag> tags;
-
-    @OneToMany
-    private Set<Zone> zones;
-
     private LocalDateTime publishedDateTime;
 
     private LocalDateTime closedDateTime;
@@ -52,4 +48,5 @@ public class Crew {
     private boolean closed;
 
     private boolean useBanner;
+
 }
