@@ -60,6 +60,10 @@ public class Account {
     @ManyToMany
     private Set<Zone> zones = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "crew_id")
+    private Crew crew;
+
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
         this.emailCheckTokenGeneratedAt = LocalDateTime.now();

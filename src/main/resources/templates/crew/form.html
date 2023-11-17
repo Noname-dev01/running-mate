@@ -12,22 +12,11 @@
   <div class="d-flex justify-content-center">
     <form class="needs-validation col-sm-10" th:action="@{/running-mate/new-crew}" th:object="${crewForm}" method="post" novalidate>
       <div class="form-group">
-        <label for="path">러닝 크루 URL</label>
-        <input id="path" type="text" th:field="*{path}" class="form-control"
-               placeholder="예) crew-path" aria-describedby="pathHelp" required min="2" max="20">
-        <small id="pathHelp" class="form-text text-muted">
-          공백없이 문자, 숫자, 대시(-)와 언더바(_)만 2자 이상 20자 이내로 입력하세요. 러닝 크루 홈 주소에 사용합니다. 예) /crew/<b>crew-path</b>
-        </small>
-        <small class="invalid-feedback">러닝 크루 경로를 입력하세요.</small>
-        <small class="form-text text-danger" th:if="${#fields.hasErrors('path')}" th:errors="*{path}">Path Error</small>
-      </div>
-
-      <div class="form-group">
         <label for="title">러닝 크루 이름</label>
         <input id="title" type="text" th:field="*{title}" class="form-control"
-               placeholder="러닝 크루 이름" aria-describedby="titleHelp" required max="50">
+               placeholder="러닝 크루 이름" aria-describedby="titleHelp" required min="2" max="20">
         <small id="titleHelp" class="form-text text-muted">
-          러닝 크루 이름을 50자 이내로 입력하세요.
+          공백없이 문자, 숫자, 대시(-)와 언더바(_)만 2자 이상 20자 이내로 입력하세요. 러닝 크루 홈 주소에 사용합니다. 예) /crew/<b>crew-path</b>
         </small>
         <small class="invalid-feedback">러닝 크루 이름을 입력하세요.</small>
         <small class="form-text text-danger" th:if="${#fields.hasErrors('title')}" th:errors="*{title}">Title Error</small>

@@ -21,8 +21,8 @@ public class CrewFormValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         CrewForm crewForm = (CrewForm) target;
-        if (crewRepository.existsByPath(crewForm.getPath())){
-            errors.rejectValue("path", "wrong.path", "해당 크루 경로값을 사용할 수 없습니다.");
+        if (crewRepository.existsByTitle(crewForm.getTitle())){
+            errors.rejectValue("title", "wrong.title", "해당 크루 이름은 사용중이거나 형식이 올바르지 않습니다.");
         }
     }
 }

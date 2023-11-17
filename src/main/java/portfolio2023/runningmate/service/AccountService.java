@@ -45,7 +45,7 @@ public class AccountService implements UserDetailsService {
 
     public Account processNewAccount(SignUpForm signUpForm){
         Account newAccount = saveNewAccount(signUpForm);
-        sendSignUpConfirmEmail(newAccount);
+//        sendSignUpConfirmEmail(newAccount);
         return newAccount;
     }
 

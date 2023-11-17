@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/head.html :: head"></head>
+<body class="bg-light">
+  <div th:replace="fragments/main-nav.html :: main-nav"></div>
+  <div th:replace="fragments/crew/crew-banner.html :: crew-banner"></div>
+
+  <div class="container">
+    <div th:replace="fragments/crew/crew-info.html :: crew-info"></div>
+    <div th:replace="fragments/crew/crew-menu.html :: crew-menu(crewMenu='info')"></div>
+
+      <div class="d-flex px-3 justify-content-center">
+          <div class="col-10 pt-3" th:utext="${crew.fullDescription}"></div>
+      </div>
+
+  <div th:replace="fragments/footer.html :: footer"></div>
+  </div>
+    <script type="application/javascript">
+        $(function (){
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+</body>
+</html>

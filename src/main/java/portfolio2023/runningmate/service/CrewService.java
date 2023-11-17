@@ -19,4 +19,8 @@ public class CrewService {
         newCrew.setManager(account);
         return newCrew;
     }
+
+    public Crew findByTitle(String title){
+        return crewRepository.findByTitle(title);
+    }
 }

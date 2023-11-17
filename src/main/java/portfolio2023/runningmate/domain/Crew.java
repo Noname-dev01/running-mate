@@ -1,6 +1,7 @@
 package portfolio2023.runningmate.domain;
 
 import lombok.*;
+import portfolio2023.runningmate.security.UserAccount;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,12 +20,10 @@ public class Crew {
     @JoinColumn(name = "account_id")
     private Account manager;
 
-    @OneToMany
+    @OneToMany(mappedBy = "crew")
     private Set<Account> members = new HashSet<>();
 
     @Column(unique = true)
-    private String path;
-
     private String title;
 
     private String shortDescription;
@@ -49,4 +48,17 @@ public class Crew {
 
     private boolean useBanner;
 
+    public boolean isJoinable(UserAccount userAccount){
+        Account account = userAccount.getAccount();
+        return this.isPublished() && this.isRecruiting()
+                && !this.members.contains(account) && !this.manager.equals(account);
+    }
+
+    public boolean isMember(UserAccount userAccount){
+        return this.members.contains(userAccount.getAccount());
+    }
+
+    public boolean isManager(UserAccount userAccount){
+        return this.manager.equals(userAccount.getAccount());
+    }
 }

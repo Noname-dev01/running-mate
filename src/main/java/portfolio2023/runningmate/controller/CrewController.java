@@ -7,10 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Crew;
 import portfolio2023.runningmate.domain.dto.CrewForm;
@@ -45,13 +42,20 @@ public class CrewController {
     }
 
     @PostMapping("/new-crew")
-    public String newCrewSubmit(@CurrentAccount Account account, @Valid CrewForm crewForm, Errors errors){
+    public String newCrewSubmit(@CurrentAccount Account account, @Valid CrewForm crewForm, Errors errors,Model model){
         if (errors.hasErrors()){
+            model.addAttribute(account);
             return "crew/form";
         }
 
         Crew newCrew = crewService.createNewCrew(modelMapper.map(crewForm, Crew.class), account);
-        return "redirect:/running-mate/crew/" + URLEncoder.encode(newCrew.getPath(), StandardCharsets.UTF_8);
+        return "redirect:/running-mate/crew/" + URLEncoder.encode(newCrew.getTitle(), StandardCharsets.UTF_8);
     }
 
+    @GetMapping("/crew/{title}")
+    public String viewCrew(@CurrentAccount Account account, @PathVariable String title, Model model){
+        model.addAttribute(account);
+        model.addAttribute(crewService.findByTitle(title));
+        return "crew/view";
+    }
 }
