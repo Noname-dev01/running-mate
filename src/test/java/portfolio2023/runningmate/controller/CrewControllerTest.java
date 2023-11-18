@@ -115,4 +115,43 @@ public class CrewControllerTest {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("crew"));
     }
+
+    @Test
+    @DisplayName("크루원 조회")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    void viewCrewMembers() throws Exception {
+        Crew crew = new Crew();
+        crew.setTitle("testCrew");
+        crew.setShortDescription("shrot description");
+        crew.setFullDescription("full description");
+
+        Account account = accountService.findByNickname("admin");
+        crewService.createNewCrew(crew, account);
+
+        mockMvc.perform(get("/running-mate/crew/testCrew/members"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("crew"));
+
+    }
+
+    @Test
+    @DisplayName("크루 가입")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    void joinCrew() throws Exception{
+        Crew crew = new Crew();
+        crew.setTitle("testCrew");
+        crew.setShortDescription("shrot description");
+        crew.setFullDescription("full description");
+
+        Account account = accountService.findByNickname("admin");
+        crewService.createNewCrew(crew, account);
+
+        mockMvc.perform(get("/running-mate/crew/testCrew/join"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/members"));
+
+        assertTrue(crew.getMembers().contains(account));
+    }
+
 }

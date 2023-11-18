@@ -58,4 +58,21 @@ public class CrewController {
         model.addAttribute(crewService.findByTitle(title));
         return "crew/view";
     }
+
+    @GetMapping("/crew/{title}/members")
+    public String viewCrewMembers(@CurrentAccount Account account, @PathVariable String title, Model model){
+        Crew crew = crewService.getCrew(title);
+        model.addAttribute(account);
+        model.addAttribute(crew);
+
+        return "crew/members";
+    }
+
+    @GetMapping("/crew/{title}/join")
+    public String joinCrew(@CurrentAccount Account account, @PathVariable String title){
+        Crew crew = crewService.findMembersByTitle(title);
+        crewService.addMember(crew, account);
+        return "redirect:/running-mate/crew/" + crew.getEncodedPath() + "/members";
+    }
+
 }

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head.html :: head"></head>
+<body class="bg-light">
+  <div th:replace="fragments/main-nav.html :: main-nav"></div>
+  <div th:replace="fragments/crew/crew-banner.html :: crew-banner"></div>
+
+  <div class="container">
+    <div th:replace="fragments/crew/crew-info.html :: crew-info"></div>
+    <div th:replace="fragments/crew/crew-menu.html :: crew-menu (crewMenu='members')"></div>
+
+    <div th:replace="fragments/crew/member-list.html :: member-list(members=${crew.manager},isManager=${true})"></div>
+    <div th:replace="fragments/crew/member-list.html :: member-list(members=${crew.members},isManager=${false})"></div>
+    <div th:replace="fragments/footer.html :: footer"></div>
+  </div>
+
+  <script type="application/javascript">
+    $(function (){
+      $('[data-toggle=tooltip]').tooltip()
+    })
+  </script>
+</body>
+</html>

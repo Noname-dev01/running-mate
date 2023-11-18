@@ -1,9 +1,12 @@
 package portfolio2023.runningmate.domain;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import portfolio2023.runningmate.security.UserAccount;
 
 import javax.persistence.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,6 +51,9 @@ public class Crew {
 
     private boolean useBanner;
 
+    @ColumnDefault("0")
+    private int memberCount;
+
     public boolean isJoinable(UserAccount userAccount){
         Account account = userAccount.getAccount();
         return this.isPublished() && this.isRecruiting()
@@ -60,5 +66,14 @@ public class Crew {
 
     public boolean isManager(UserAccount userAccount){
         return this.manager.equals(userAccount.getAccount());
+    }
+
+    public void addMemberCount(Account account) {
+        this.getMembers().add(account);
+        this.memberCount++;
+    }
+
+    public String getEncodedPath() {
+        return URLEncoder.encode(this.title, StandardCharsets.UTF_8);
     }
 }

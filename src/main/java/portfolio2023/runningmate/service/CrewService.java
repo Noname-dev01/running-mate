@@ -23,4 +23,24 @@ public class CrewService {
     public Crew findByTitle(String title){
         return crewRepository.findByTitle(title);
     }
+
+    public Crew getCrew(String title) {
+        Crew crew = crewRepository.findByTitle(title);
+        checkIfExistingStudy(title, crew);
+        return crew;
+    }
+
+    public Crew findMembersByTitle(String title){
+        return crewRepository.findCrewWithMembersByTitle(title);
+    }
+
+    public void addMember(Crew crew, Account account){
+        crew.addMemberCount(account);
+    }
+
+    private void checkIfExistingStudy(String title, Crew crew) {
+        if (crew == null){
+            throw new IllegalArgumentException(title + "에 해당하는 크루가 없습니다.");
+        }
+    }
 }

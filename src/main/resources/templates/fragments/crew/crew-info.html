@@ -4,7 +4,7 @@
 <div th:fragment="crew-info">
   <div class="d-flex pt-4 text-left justify-content-center bg-light">
     <div class="col-6">
-      <a href="#" class="text-decoration-none" th:href="@{'/crew/' + ${crew.title}}">
+      <a href="#" class="text-decoration-none" th:href="@{'/running-mate/crew/' + ${crew.title}}">
         <span class="h2" th:text="${crew.title}">크루 이름</span>
       </a>
     </div>
@@ -22,25 +22,26 @@
             class="d-inline-block ml-1" tabindex="0" data-toggle="tooltip" data-placement="bottom" title="크루원 모집중 아님">
               <button class="btn btn-primary btn-sm" style="pointer-events: none;" type="button" disabled>OFF</button>
           </span>
+
       <span sec:authorize="isAuthenticated()" th:if="${crew.isJoinable(#authentication.principal)}"
             class="btn-group" role="group" aria-label="Basic example">
-              <a class="btn btn-primary" th:href="@{'/crew/' + ${crew.path} + '/join'}">
+              <a class="btn btn-primary" th:href="@{'/running-mate/crew/' + ${crew.title} + '/join'}">
                   크루 가입
               </a>
-              <a class="btn btn-outline-primary" th:href="@{'/crew/' + ${crew.path} + '/members'}"
+              <a class="btn btn-outline-primary" th:href="@{'/running-mate/crew/' + ${crew.title} + '/members'}"
                  th:text="${crew.members.size()}">1</a>
         </span>
       <span sec:authorize="isAuthenticated()"
             th:if="${!crew.closed && crew.isMember(#authentication.principal)}" class="btn-group" role="group">
-            <a class="btn btn-outline-warning" th:href="@{'/crew/' + ${crew.path} + '/leave'}">
+            <a class="btn btn-outline-warning" th:href="@{'/running-mate/crew/' + ${crew.title} + '/leave'}">
                 크루 탈퇴
             </a>
-            <a class="btn btn-outline-primary" th:href="@{'/crew/' + ${crew.path} + '/members'}"
+            <a class="btn btn-outline-primary" th:href="@{'/running-mate/crew/' + ${crew.title} + '/members'}"
                th:text="${crew.members.size()}">1</a>
         </span>
       <span sec:authorize="isAuthenticated()"
             th:if="${crew.published && !crew.closed && crew.isManager(#authentication.principal)}">
-            <a class="btn btn-outline-primary" th:href="@{'/crew/' + ${crew.path} + '/new-event'}">
+            <a class="btn btn-outline-primary" th:href="@{'/running-mate/crew/' + ${crew.title} + '/new-event'}">
                 <i class="fa fa-plus"></i> 모임 만들기
             </a>
         </span>
