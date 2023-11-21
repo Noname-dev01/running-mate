@@ -66,6 +66,7 @@ class CrewSettingsControllerTest {
     void viewCrewSetting() throws Exception {
         mockMvc.perform(get("/running-mate/crew/test/settings/description"))
                 .andExpect(status().isOk())
+                .andExpect(view().name("crew/settings/description"))
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("crew"))
                 .andExpect(model().attributeExists("crewDescriptionForm"));
@@ -110,4 +111,14 @@ class CrewSettingsControllerTest {
         assertEquals("full description", crew.getFullDescription());
     }
 
+    @Test
+    @DisplayName("크루 설정 - 배너 뷰")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    void crewBannerForm() throws Exception {
+        mockMvc.perform(get("/running-mate/crew/test/settings/banner"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("crew/settings/banner"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("crew"));
+    }
 }

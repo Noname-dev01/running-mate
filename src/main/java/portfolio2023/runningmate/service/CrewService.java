@@ -59,4 +59,16 @@ public class CrewService {
     public void updateCrewDescription(Crew crew, CrewDescriptionForm crewDescriptionForm){
         modelMapper.map(crewDescriptionForm, crew);
     }
+
+    public void updateCrewImage(Crew crew, String image) {
+        crew.setImage(image);
+    }
+
+    public void enableCrewBanner(Crew crew){
+        crew.setUseBanner(true);
+    }
+
+    public void disableCrewBanner(Crew crew){
+        crew.setUseBanner(false);
+    }
 }

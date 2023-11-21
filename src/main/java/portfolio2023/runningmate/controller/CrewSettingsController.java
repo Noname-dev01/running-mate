@@ -55,6 +55,37 @@ public class CrewSettingsController {
         return "redirect:/running-mate/crew/" + getTitle(title) + "/settings/description";
     }
 
+    @GetMapping("/banner")
+    public String crewBannerForm(@CurrentAccount Account account, @PathVariable String title, Model model){
+        Crew crew = crewService.getCrewToUpdate(account, title);
+        model.addAttribute(account);
+        model.addAttribute(crew);
+        return "crew/settings/banner";
+    }
+
+    @PostMapping("/banner")
+    public String crewBannerSubmit(@CurrentAccount Account account, @PathVariable String title,
+                                   String image, RedirectAttributes attributes){
+        Crew crew = crewService.getCrewToUpdate(account, title);
+        crewService.updateCrewImage(crew, image);
+        attributes.addFlashAttribute("message", "크루 이미지를 수정했습니다.");
+        return "redirect:/running-mate/crew/"+ getTitle(title) + "/settings/banner";
+    }
+
+    @PostMapping("/banner/enable")
+    public String enableCrewBanner(@CurrentAccount Account account, @PathVariable String title){
+        Crew crew = crewService.getCrewToUpdate(account, title);
+        crewService.enableCrewBanner(crew);
+        return "redirect:/running-mate/crew/"+ getTitle(title) + "/settings/banner";
+    }
+
+    @PostMapping("/banner/disable")
+    public String disableCrewBanner(@CurrentAccount Account account, @PathVariable String title){
+        Crew crew = crewService.getCrewToUpdate(account, title);
+        crewService.disableCrewBanner(crew);
+        return "redirect:/running-mate/crew/" + getTitle(title) + "/settings/banner";
+    }
+
     private String getTitle(String title) {
         return URLEncoder.encode(title, StandardCharsets.UTF_8);
     }

@@ -76,4 +76,8 @@ public class Crew {
     public String getEncodedPath() {
         return URLEncoder.encode(this.title, StandardCharsets.UTF_8);
     }
+
+    public String getImage(){
+        return image != null ? image : "/images/default_banner.jpg";
+    }
 }
