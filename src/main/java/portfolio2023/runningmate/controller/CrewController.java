@@ -54,16 +54,16 @@ public class CrewController {
 
     @GetMapping("/crew/{title}")
     public String viewCrew(@CurrentAccount Account account, @PathVariable String title, Model model){
+        Crew crew = crewService.getCrew(title);
         model.addAttribute(account);
-        model.addAttribute(crewService.findByTitle(title));
+        model.addAttribute(crew);
         return "crew/view";
     }
 
     @GetMapping("/crew/{title}/members")
     public String viewCrewMembers(@CurrentAccount Account account, @PathVariable String title, Model model){
-        Crew crew = crewService.getCrew(title);
         model.addAttribute(account);
-        model.addAttribute(crew);
+        model.addAttribute(crewService.getCrew(title));
 
         return "crew/members";
     }

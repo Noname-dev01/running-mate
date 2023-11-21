@@ -1,10 +1,13 @@
 package portfolio2023.runningmate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Crew;
+import portfolio2023.runningmate.domain.dto.CrewDescriptionForm;
 import portfolio2023.runningmate.repository.CrewRepository;
 
 @Service
@@ -13,6 +16,7 @@ import portfolio2023.runningmate.repository.CrewRepository;
 public class CrewService {
 
     private final CrewRepository crewRepository;
+    private final ModelMapper modelMapper;
 
     public Crew createNewCrew(Crew crew, Account account) {
         Crew newCrew = crewRepository.save(crew);
@@ -26,7 +30,7 @@ public class CrewService {
 
     public Crew getCrew(String title) {
         Crew crew = crewRepository.findByTitle(title);
-        checkIfExistingStudy(title, crew);
+        checkIfExistingCrew(title, crew);
         return crew;
     }
 
@@ -38,9 +42,21 @@ public class CrewService {
         crew.addMemberCount(account);
     }
 
-    private void checkIfExistingStudy(String title, Crew crew) {
+    private void checkIfExistingCrew(String title, Crew crew) {
         if (crew == null){
             throw new IllegalArgumentException(title + "에 해당하는 크루가 없습니다.");
         }
+    }
+
+    public Crew getCrewToUpdate(Account account, String title) {
+        Crew crew = this.getCrew(title);
+        if (!account.isManagerOf(crew)){
+            throw new AccessDeniedException("해당 기능을 사용할 수 없습니다.");
+        }
+        return crew;
+    }
+
+    public void updateCrewDescription(Crew crew, CrewDescriptionForm crewDescriptionForm){
+        modelMapper.map(crewDescriptionForm, crew);
     }
 }

@@ -1,0 +1,12 @@
+<div th:fragment="crew-settings-menu (currentMenu)" class="list-group">
+  <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'description'}? active"
+     href="#" th:href="@{'/running-mate/crew/' + ${crew.title} + '/settings/description'}">소개</a>
+  <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'image'}? active"
+     href="#" th:href="@{'/running-mate/crew/' + ${crew.title} + '/settings/banner'}">배너 이미지</a>
+  <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'tags'}? active"
+     href="#" th:href="@{'/running-mate/crew/' + ${crew.title} + '/settings/tags'}">크루의 목적</a>
+  <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'zones'}? active"
+     href="#" th:href="@{'/running-mate/crew/' + ${crew.title} + '/settings/zones'}">크루 러닝 희망 지역</a>
+  <a class="list-group-item list-group-item-action list-group-item-danger" th:classappend="${currentMenu == 'crew'}? active"
+     href="#" th:href="@{'/running-mate/crew/' + ${crew.title} + '/settings/crew'}">러닝 크루</a>
+</div>
