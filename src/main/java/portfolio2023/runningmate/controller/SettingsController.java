@@ -21,6 +21,7 @@ import portfolio2023.runningmate.repository.TagRepository;
 import portfolio2023.runningmate.repository.ZoneRepository;
 import portfolio2023.runningmate.security.CurrentAccount;
 import portfolio2023.runningmate.service.AccountService;
+import portfolio2023.runningmate.service.TagService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -39,6 +40,7 @@ public class SettingsController {
     private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
     private final ZoneRepository zoneRepository;
+    private final TagService tagService;
 
     @InitBinder("passwordForm")
     public void PasswordFormInitBinder(WebDataBinder webDataBinder) {
@@ -136,7 +138,7 @@ public class SettingsController {
         model.addAttribute(account);
         Set<Tag> tags = accountService.getTags(account);
         model.addAttribute("tags", tags.stream().map(Tag::getTitle).collect(Collectors.toList()));
-        List<String> allTags = tagRepository.findAll().stream().map(Tag::getTitle).collect(Collectors.toList());
+        List<String> allTags = tagService.findAllTagTitles();
         model.addAttribute("whiteList", objectMapper.writeValueAsString(allTags));
         return "settings/tags";
     }
@@ -144,12 +146,7 @@ public class SettingsController {
     @PostMapping("/settings/tags/add")
     @ResponseBody
     public ResponseEntity addTag(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
-        String title = tagForm.getTagTitle();
-        Tag tag = tagRepository.findByTitle(title);
-        if (tag == null) {
-            tag = tagRepository.save(Tag.builder().title(tagForm.getTagTitle()).build());
-        }
-
+        Tag tag = tagService.findOrCreateNew(tagForm.getTagTitle());
         accountService.addTag(account, tag);
         return ResponseEntity.ok().build();
     }
@@ -157,12 +154,7 @@ public class SettingsController {
     @PostMapping("/settings/tags/remove")
     @ResponseBody
     public ResponseEntity removeTag(@CurrentAccount Account account, @RequestBody TagForm tagForm) {
-        String title = tagForm.getTagTitle();
-        Tag tag = tagRepository.findByTitle(title);
-        if (tag == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
+        Tag tag = tagService.findOrCreateNew(tagForm.getTagTitle());
         accountService.removeTag(account, tag);
         return ResponseEntity.ok().build();
     }

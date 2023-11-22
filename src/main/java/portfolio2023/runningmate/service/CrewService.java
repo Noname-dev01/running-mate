@@ -7,8 +7,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Crew;
+import portfolio2023.runningmate.domain.Tag;
+import portfolio2023.runningmate.domain.Zone;
 import portfolio2023.runningmate.domain.dto.CrewDescriptionForm;
 import portfolio2023.runningmate.repository.CrewRepository;
+import portfolio2023.runningmate.repository.TagRepository;
 
 @Service
 @Transactional
@@ -17,6 +20,7 @@ public class CrewService {
 
     private final CrewRepository crewRepository;
     private final ModelMapper modelMapper;
+    private final TagRepository tagRepository;
 
     public Crew createNewCrew(Crew crew, Account account) {
         Crew newCrew = crewRepository.save(crew);
@@ -42,12 +46,6 @@ public class CrewService {
         crew.addMemberCount(account);
     }
 
-    private void checkIfExistingCrew(String title, Crew crew) {
-        if (crew == null){
-            throw new IllegalArgumentException(title + "에 해당하는 크루가 없습니다.");
-        }
-    }
-
     public Crew getCrewToUpdate(Account account, String title) {
         Crew crew = this.getCrew(title);
         if (!account.isManagerOf(crew)){
@@ -70,5 +68,47 @@ public class CrewService {
 
     public void disableCrewBanner(Crew crew){
         crew.setUseBanner(false);
+    }
+
+    public void addTag(Crew crew, Tag tag) {
+        crew.getTags().add(tag);
+    }
+
+    public void removeTag(Crew crew, Tag tag){
+        crew.getTags().remove(tag);
+    }
+
+    public void addZone(Crew crew, Zone zone){
+        crew.getZones().add(zone);
+    }
+
+    public void removeZone(Crew crew, Zone zone){
+        crew.getZones().remove(zone);
+    }
+
+    public Crew getCrewToUpdateTag(Account account, String title){
+        Crew crew = crewRepository.findCrewWithTagsByTitle(title);
+        checkIfExistingCrew(title, crew);
+        checkIfManager(account, crew);
+        return crew;
+    }
+
+    public Crew getCrewToUpdateZone(Account account, String title){
+        Crew crew = crewRepository.findCrewWithZonesByTitle(title);
+        checkIfExistingCrew(title, crew);
+        checkIfManager(account, crew);
+        return crew;
+    }
+
+    private void checkIfManager(Account account, Crew crew) {
+        if (!account.isManagerOf(crew)){
+            throw new AccessDeniedException("해당 기능을 사용할 수 없습니다.");
+        }
+    }
+
+    private void checkIfExistingCrew(String title, Crew crew) {
+        if (crew == null){
+            throw new IllegalArgumentException(title + "에 해당하는 크루가 없습니다.");
+        }
     }
 }

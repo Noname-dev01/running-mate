@@ -1,0 +1,44 @@
+<div th:fragment="update-zones (baseUrl)">
+    <script src="/node_modules/@yaireo/tagify/dist/tagify.min.js"></script>
+    <script type="application/javascript">
+        $(function () {
+            function zoneRequest(url, zoneName) {
+                $.ajax({
+                    dataType: "json",
+                    autocomplete: {
+                        enabled: true,
+                        rightKey: true,
+                    },
+                    contentType: "application/json; charset=utf-8",
+                    method: "POST",
+                    url: "[(${baseUrl})]" + url,
+                    data: JSON.stringify({'zoneName': zoneName})
+                }).done(function (data, status) {
+                    console.log("${data} and status is ${status}");
+                });
+            }
+
+            function onAdd(e) {
+                zoneRequest("/add", e.detail.data.value);
+            }
+
+            function onRemove(e) {
+                zoneRequest("/remove", e.detail.data.value);
+            }
+
+            var zoneInput = document.querySelector("#zones");
+
+            var tagify = new Tagify(zoneInput, {
+                enforceWhitelist: true,
+                whitelist: JSON.parse(document.querySelector("#whitelist").textContent),
+                dropdown : {
+                    position: "input",
+                    enabled: 1 // suggest tags after a single character input
+                } // map tags
+            });
+
+            tagify.on("add", onAdd);
+            tagify.on("remove", onRemove);
+        });
+    </script>
+</div>

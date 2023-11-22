@@ -6,6 +6,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import portfolio2023.runningmate.domain.Zone;
+import portfolio2023.runningmate.domain.dto.ZoneForm;
 import portfolio2023.runningmate.repository.ZoneRepository;
 
 import javax.annotation.PostConstruct;
@@ -33,5 +34,13 @@ public class ZoneService {
                     }).collect(Collectors.toList());
             zoneRepository.saveAll(zoneList);
         }
+    }
+
+    public List<String> findAllZones() {
+        return zoneRepository.findAll().stream().map(Zone::toString).collect(Collectors.toList());
+    }
+
+    public Zone findByCityAndProvince(ZoneForm zoneForm) {
+        return zoneRepository.findByCityAndProvince(zoneForm.getCityName(), zoneForm.getProvinceName());
     }
 }

@@ -37,6 +37,12 @@ public class Crew {
     @Lob @Basic(fetch = FetchType.EAGER)
     private String image;
 
+    @ManyToMany
+    private Set<Tag> tags = new HashSet<>();
+
+    @ManyToMany
+    private Set<Zone> zones = new HashSet<>();
+
     private LocalDateTime publishedDateTime;
 
     private LocalDateTime closedDateTime;
@@ -78,6 +84,6 @@ public class Crew {
     }
 
     public String getImage(){
-        return image != null ? image : "/images/default_banner.jpg";
+        return image != null ? image : "/images/default-banner.jpeg";
     }
 }
