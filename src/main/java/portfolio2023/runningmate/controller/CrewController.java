@@ -75,4 +75,11 @@ public class CrewController {
         return "redirect:/running-mate/crew/" + crew.getEncodedTitle() + "/members";
     }
 
+    @GetMapping("/crew/{title}/leave")
+    public String leaveCrew(@CurrentAccount Account account, @PathVariable String title){
+        Crew crew = crewService.findMembersByTitle(title);
+        crewService.removeAccount(crew, account);
+        return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/members";
+    }
+
 }

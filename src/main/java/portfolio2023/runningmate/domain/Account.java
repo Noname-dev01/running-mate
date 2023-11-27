@@ -60,9 +60,6 @@ public class Account {
     @ManyToMany
     private Set<Zone> zones = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "crew_id")
-    private Crew crew;
 
     public void generateEmailCheckToken() {
         this.emailCheckToken = UUID.randomUUID().toString();
@@ -85,4 +82,5 @@ public class Account {
     public boolean isManagerOf(Crew crew) {
         return crew.getManager().equals(this);
     }
+
 }

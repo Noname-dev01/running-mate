@@ -23,7 +23,7 @@ public class Crew {
     @JoinColumn(name = "account_id")
     private Account manager;
 
-    @OneToMany(mappedBy = "crew")
+    @ManyToMany
     private Set<Account> members = new HashSet<>();
 
     @Column(unique = true)
@@ -72,11 +72,6 @@ public class Crew {
 
     public boolean isManager(UserAccount userAccount){
         return this.manager.equals(userAccount.getAccount());
-    }
-
-    public void addMemberCount(Account account) {
-        this.getMembers().add(account);
-        this.memberCount++;
     }
 
     public String getEncodedTitle() {
@@ -131,5 +126,15 @@ public class Crew {
     public boolean isRemovable() {
         return !this.published;
 
+    }
+
+    public void addMemberCount(Account account) {
+        this.getMembers().add(account);
+        this.memberCount++;
+    }
+
+    public void removeAccount(Account account) {
+        this.getMembers().remove(account);
+        this.memberCount--;
     }
 }

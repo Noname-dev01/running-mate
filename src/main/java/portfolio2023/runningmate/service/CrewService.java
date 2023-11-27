@@ -42,10 +42,6 @@ public class CrewService {
         return crewRepository.findCrewWithMembersByTitle(title);
     }
 
-    public void addMember(Crew crew, Account account){
-        crew.addMemberCount(account);
-    }
-
     public Crew getCrewToUpdate(Account account, String title) {
         Crew crew = this.getCrew(title);
         if (!account.isManagerOf(crew)){
@@ -149,5 +145,13 @@ public class CrewService {
         }else {
             throw new IllegalArgumentException("크루를 삭제할 수 없습니다.");
         }
+    }
+
+    public void addMember(Crew crew, Account account){
+        crew.addMemberCount(account);
+    }
+
+    public void removeAccount(Crew crew, Account account) {
+        crew.removeAccount(account);
     }
 }

@@ -23,8 +23,6 @@ import portfolio2023.runningmate.service.TagService;
 import portfolio2023.runningmate.service.ZoneService;
 
 import javax.validation.Valid;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +60,7 @@ public class CrewSettingsController {
 
         crewService.updateCrewDescription(crew, crewDescriptionForm);
         attributes.addFlashAttribute("message", "크루 소개를 수정했습니다.");
-        return "redirect:/running-mate/crew/" + getTitle(title) + "/settings/description";
+        return "redirect:/running-mate/crew/" + crew.getEncodedTitle() + "/settings/description";
     }
 
     @GetMapping("/banner")
@@ -79,21 +77,21 @@ public class CrewSettingsController {
         Crew crew = crewService.getCrewToUpdate(account, title);
         crewService.updateCrewImage(crew, image);
         attributes.addFlashAttribute("message", "크루 이미지를 수정했습니다.");
-        return "redirect:/running-mate/crew/"+ getTitle(title) + "/settings/banner";
+        return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/settings/banner";
     }
 
     @PostMapping("/banner/enable")
     public String enableCrewBanner(@CurrentAccount Account account, @PathVariable String title){
         Crew crew = crewService.getCrewToUpdate(account, title);
         crewService.enableCrewBanner(crew);
-        return "redirect:/running-mate/crew/"+ getTitle(title) + "/settings/banner";
+        return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/settings/banner";
     }
 
     @PostMapping("/banner/disable")
     public String disableCrewBanner(@CurrentAccount Account account, @PathVariable String title){
         Crew crew = crewService.getCrewToUpdate(account, title);
         crewService.disableCrewBanner(crew);
-        return "redirect:/running-mate/crew/" + getTitle(title) + "/settings/banner";
+        return "redirect:/running-mate/crew/" + crew.getEncodedTitle() + "/settings/banner";
     }
 
     @GetMapping("/tags")
@@ -185,7 +183,7 @@ public class CrewSettingsController {
         Crew crew = crewService.getCrewToUpdateStatus(account, title);
         crewService.publish(crew);
         attributes.addFlashAttribute("message", "크루를 공개했습니다.");
-        return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+        return "redirect:/running-mate/crew/"+crew.getEncodedTitle()+"/settings/status";
     }
 
     @PostMapping("/status/close")
@@ -193,7 +191,7 @@ public class CrewSettingsController {
         Crew crew = crewService.getCrewToUpdateStatus(account, title);
         crewService.close(crew);
         attributes.addFlashAttribute("message", "크루를 종료했습니다.");
-        return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+        return "redirect:/running-mate/crew/"+crew.getEncodedTitle()+"/settings/status";
     }
 
     @PostMapping("/recruit/start")
@@ -201,12 +199,12 @@ public class CrewSettingsController {
         Crew crew = crewService.getCrewToUpdateStatus(account, title);
         if (!crew.canUpdateRecruiting()){
             attributes.addFlashAttribute("message", "5분 안에 크루원 모집 설정을 여러번 변경할 수 없습니다.");
-            return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+            return "redirect:/running-mate/crew/"+crew.getEncodedTitle()+"/settings/status";
         }
 
         crewService.startRecruit(crew);
         attributes.addFlashAttribute("message", "크루원 모집을 시작합니다.");
-        return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+        return "redirect:/running-mate/crew/"+crew.getEncodedTitle()+"/settings/status";
     }
 
     @PostMapping("/recruit/stop")
@@ -214,12 +212,12 @@ public class CrewSettingsController {
         Crew crew = crewService.getCrewToUpdateStatus(account, title);
         if (!crew.canUpdateRecruiting()){
             attributes.addFlashAttribute("message", "5분 안에 크루원 모집 설정을 여러번 변경할 수 없습니다.");
-            return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+            return "redirect:/running-mate/crew/"+crew.getEncodedTitle()+"/settings/status";
         }
 
         crewService.stopRecruit(crew);
         attributes.addFlashAttribute("message", "크루원 모집을 종료합니다.");
-        return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+        return "redirect:/running-mate/crew/"+crew.getEncodedTitle()+"/settings/status";
     }
 
     @PostMapping("/status/title")
@@ -245,8 +243,5 @@ public class CrewSettingsController {
         return "redirect:/running-mate";
     }
 
-    private String getTitle(String title) {
-        return URLEncoder.encode(title, StandardCharsets.UTF_8);
-    }
 
 }
