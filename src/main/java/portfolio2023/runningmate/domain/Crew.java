@@ -79,11 +79,57 @@ public class Crew {
         this.memberCount++;
     }
 
-    public String getEncodedPath() {
+    public String getEncodedTitle() {
         return URLEncoder.encode(this.title, StandardCharsets.UTF_8);
     }
 
     public String getImage(){
         return image != null ? image : "/images/default-banner.jpeg";
+    }
+
+    public void publish() {
+        if (!this.closed && !this.published){
+            this.published = true;
+            this.publishedDateTime = LocalDateTime.now();
+        }else {
+            throw new RuntimeException("크루를 공개할 수 없는 상태입니다. 크루를 이미 공개했거나 종료했습니다.");
+        }
+    }
+
+
+    public void close() {
+        if (!this.published && !this.closed){
+            this.closed = true;
+            this.closedDateTime = LocalDateTime.now();
+        }else {
+            throw new RuntimeException("크루를 종료할 수 없습니다. 크루를 공개하지 않았거나 이미 종료된 크루입니다.");
+        }
+    }
+
+    public void startRecruit() {
+        if (canUpdateRecruiting()){
+            this.recruiting = true;
+            this.recruitingUpdatedDateTime = LocalDateTime.now();
+        }else {
+            throw new RuntimeException("크루원 모집을 시작할 수 없습니다. 크루를 공개하거나 5분뒤 다시 시도하세요.");
+        }
+    }
+
+    public void stopRecruit() {
+        if (canUpdateRecruiting()){
+            this.recruiting = false;
+            this.recruitingUpdatedDateTime = LocalDateTime.now();
+        }else {
+            throw new RuntimeException("인원 모집을 멈출 수 없습니다. 크루를 공개하거나 5분뒤 다시 시도하세요.");
+        }
+    }
+
+    public boolean canUpdateRecruiting() {
+        return this.published && this.recruitingUpdatedDateTime == null || this.recruitingUpdatedDateTime.isBefore(LocalDateTime.now().minusMinutes(5));
+    }
+
+    public boolean isRemovable() {
+        return !this.published;
+
     }
 }

@@ -2,9 +2,7 @@ package portfolio2023.runningmate.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -173,6 +171,80 @@ public class CrewSettingsController {
         crewService.removeZone(crew, zone);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/status")
+    public String crewStatusForm(@CurrentAccount Account account, @PathVariable String title, Model model){
+        Crew crew = crewService.getCrewToUpdate(account, title);
+        model.addAttribute(account);
+        model.addAttribute(crew);
+        return "crew/settings/status";
+    }
+
+    @PostMapping("/status/publish")
+    public String publishCrew(@CurrentAccount Account account, @PathVariable String title, RedirectAttributes attributes){
+        Crew crew = crewService.getCrewToUpdateStatus(account, title);
+        crewService.publish(crew);
+        attributes.addFlashAttribute("message", "크루를 공개했습니다.");
+        return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+    }
+
+    @PostMapping("/status/close")
+    public String closeCrew(@CurrentAccount Account account, @PathVariable String title, RedirectAttributes attributes){
+        Crew crew = crewService.getCrewToUpdateStatus(account, title);
+        crewService.close(crew);
+        attributes.addFlashAttribute("message", "크루를 종료했습니다.");
+        return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+    }
+
+    @PostMapping("/recruit/start")
+    public String startRecruit(@CurrentAccount Account account, @PathVariable String title, RedirectAttributes attributes){
+        Crew crew = crewService.getCrewToUpdateStatus(account, title);
+        if (!crew.canUpdateRecruiting()){
+            attributes.addFlashAttribute("message", "5분 안에 크루원 모집 설정을 여러번 변경할 수 없습니다.");
+            return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+        }
+
+        crewService.startRecruit(crew);
+        attributes.addFlashAttribute("message", "크루원 모집을 시작합니다.");
+        return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+    }
+
+    @PostMapping("/recruit/stop")
+    public String stopRecruit(@CurrentAccount Account account, @PathVariable String title, RedirectAttributes attributes){
+        Crew crew = crewService.getCrewToUpdateStatus(account, title);
+        if (!crew.canUpdateRecruiting()){
+            attributes.addFlashAttribute("message", "5분 안에 크루원 모집 설정을 여러번 변경할 수 없습니다.");
+            return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+        }
+
+        crewService.stopRecruit(crew);
+        attributes.addFlashAttribute("message", "크루원 모집을 종료합니다.");
+        return "redirect:/running-mate/crew/"+getTitle(title)+"/settings/status";
+    }
+
+    @PostMapping("/status/title")
+    public String updateCrewTitle(@CurrentAccount Account account, @PathVariable String title, @RequestParam String newTitle,
+                                  Model model, RedirectAttributes attributes){
+        Crew crew = crewService.getCrewToUpdateStatus(account, title);
+        if (!crewService.isValidTitle(newTitle)){
+            model.addAttribute(account);
+            model.addAttribute(crew);
+            model.addAttribute("crewTitleError", "이미 사용중인 크루명이거나 글자수가 50자 초과했습니다. 다시 입력해주세요.");
+            return "crew/settings/status";
+        }
+
+        crewService.updateCrewTitle(crew, newTitle);
+        attributes.addFlashAttribute("message", "크루 이름을 수정했습니다.");
+        return "redirect:/running-mate/crew/"+crew.getEncodedTitle()+"/settings/status";
+    }
+
+    @PostMapping("/status/remove")
+    public String removeStatus(@CurrentAccount Account account, @PathVariable String title){
+        Crew crew = crewService.getCrewToUpdateStatus(account, title);
+        crewService.remove(crew);
+        return "redirect:/running-mate";
+    }
+
     private String getTitle(String title) {
         return URLEncoder.encode(title, StandardCharsets.UTF_8);
     }

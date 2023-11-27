@@ -7,6 +7,6 @@
      href="#" th:href="@{'/running-mate/crew/' + ${crew.title} + '/settings/tags'}">크루의 목적</a>
   <a class="list-group-item list-group-item-action" th:classappend="${currentMenu == 'zones'}? active"
      href="#" th:href="@{'/running-mate/crew/' + ${crew.title} + '/settings/zones'}">크루 러닝 희망 지역</a>
-  <a class="list-group-item list-group-item-action list-group-item-danger" th:classappend="${currentMenu == 'crew'}? active"
-     href="#" th:href="@{'/running-mate/crew/' + ${crew.title} + '/settings/crew'}">러닝 크루</a>
+  <a class="list-group-item list-group-item-action list-group-item-danger" th:classappend="${currentMenu == 'status'}? active"
+     href="#" th:href="@{'/running-mate/crew/' + ${crew.title} + '/settings/status'}">러닝 크루</a>
 </div>

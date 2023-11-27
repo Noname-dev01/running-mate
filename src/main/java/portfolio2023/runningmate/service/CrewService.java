@@ -100,6 +100,13 @@ public class CrewService {
         return crew;
     }
 
+    public Crew getCrewToUpdateStatus(Account account, String title) {
+        Crew crew = crewRepository.findCrewWithManagerByTitle(title);
+        checkIfExistingCrew(title, crew);
+        checkIfManager(account, crew);
+        return crew;
+    }
+
     private void checkIfManager(Account account, Crew crew) {
         if (!account.isManagerOf(crew)){
             throw new AccessDeniedException("해당 기능을 사용할 수 없습니다.");
@@ -109,6 +116,38 @@ public class CrewService {
     private void checkIfExistingCrew(String title, Crew crew) {
         if (crew == null){
             throw new IllegalArgumentException(title + "에 해당하는 크루가 없습니다.");
+        }
+    }
+
+    public void publish(Crew crew) {
+        crew.publish();
+    }
+
+    public void close(Crew crew){
+        crew.close();
+    }
+
+    public void startRecruit(Crew crew){
+        crew.startRecruit();
+    }
+
+    public void stopRecruit(Crew crew){
+        crew.stopRecruit();
+    }
+
+    public boolean isValidTitle(String newTitle) {
+        return newTitle.length() <= 50 && !crewRepository.existsByTitle(newTitle);
+    }
+
+    public void updateCrewTitle(Crew crew, String newTitle) {
+        crew.setTitle(newTitle);
+    }
+
+    public void remove(Crew crew) {
+        if (crew.isRemovable()){
+            crewRepository.delete(crew);
+        }else {
+            throw new IllegalArgumentException("크루를 삭제할 수 없습니다.");
         }
     }
 }

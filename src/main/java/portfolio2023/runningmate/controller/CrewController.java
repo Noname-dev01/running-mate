@@ -72,7 +72,7 @@ public class CrewController {
     public String joinCrew(@CurrentAccount Account account, @PathVariable String title){
         Crew crew = crewService.findMembersByTitle(title);
         crewService.addMember(crew, account);
-        return "redirect:/running-mate/crew/" + crew.getEncodedPath() + "/members";
+        return "redirect:/running-mate/crew/" + crew.getEncodedTitle() + "/members";
     }
 
 }

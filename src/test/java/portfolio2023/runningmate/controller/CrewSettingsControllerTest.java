@@ -30,6 +30,8 @@ import portfolio2023.runningmate.service.ZoneService;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-class CrewSettingsControllerTest {
+public class CrewSettingsControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired AccountService accountService;
@@ -80,7 +82,7 @@ class CrewSettingsControllerTest {
     @Test
     @DisplayName("크루 설정 - 소개 뷰")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    void viewCrewSetting() throws Exception {
+    public void viewCrewSetting() throws Exception {
         Crew crew = crewService.findByTitle("test");
         mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/settings/description"))
                 .andExpect(status().isOk())
@@ -93,7 +95,7 @@ class CrewSettingsControllerTest {
     @Test
     @DisplayName("크루 설정 - 소개 수정 성공")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    void updateCrewInfo_success() throws Exception {
+    public void updateCrewInfo_success() throws Exception {
         String shortDescription = "짧은 소개 수정하기";
         String fullDescription = "상세 소개 수정하기";
         Crew crew = crewService.findByTitle("test");
@@ -114,7 +116,7 @@ class CrewSettingsControllerTest {
     @Test
     @DisplayName("크루 설정 - 소개 수정 실패")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    void updateCrewInfo_fail() throws Exception {
+    public void updateCrewInfo_fail() throws Exception {
         Crew crew = crewService.findByTitle("test");
         String shortDescription = "짧은 소개 수정하기";
 
@@ -132,7 +134,7 @@ class CrewSettingsControllerTest {
     @Test
     @DisplayName("크루 설정 - 배너 뷰")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    void crewBannerForm() throws Exception {
+    public void crewBannerForm() throws Exception {
         Crew crew = crewService.findByTitle("test");
 
         mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/settings/banner"))
@@ -145,7 +147,7 @@ class CrewSettingsControllerTest {
     @Test
     @DisplayName("크루 설정 - 크루의 목적 뷰")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    void crewTagsForm() throws Exception{
+    public void crewTagsForm() throws Exception{
         Crew crew = crewService.findByTitle("test");
 
         mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/settings/tags"))
@@ -160,7 +162,7 @@ class CrewSettingsControllerTest {
     @Test
     @DisplayName("크루 설정 - 크루의 목적 추가")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
-    void addTag() throws Exception{
+    public void addTag() throws Exception{
         Crew crew = crewService.findByTitle("test");
         TagForm tagForm = new TagForm();
         tagForm.setTagTitle("친목");
@@ -252,5 +254,129 @@ class CrewSettingsControllerTest {
                 .andExpect(status().isOk());
 
         assertFalse(crew.getZones().contains(zone));
+    }
+
+    @Test
+    @DisplayName("크루 설정 - 크루 상태 관리")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void crewStatusForm() throws Exception {
+        Crew crew = crewService.findByTitle("test");
+        mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/settings/status"))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("crew"))
+                .andExpect(view().name("crew/settings/status"));
+    }
+
+    @Test
+    @DisplayName("크루 설정 - 크루 상태 관리(크루 공개 상태로 변경)")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void publishCrew() throws Exception {
+        Crew crew = crewService.findByTitle("test");
+        assertFalse(crew.isPublished());
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/settings/status/publish")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/settings/status"))
+                .andExpect(flash().attributeExists("message"));
+
+        assertTrue(crew.isPublished());
+        assertFalse(crew.isClosed());
+    }
+
+    @Test
+    @DisplayName("크루 설정 - 크루 상태 관리(크루 종료 상태로 변경)")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void closeCrew() throws Exception {
+        Crew crew = crewService.findByTitle("test");
+        assertFalse(crew.isClosed());
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/settings/status/close")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/settings/status"))
+                .andExpect(flash().attributeExists("message"));
+
+        assertFalse(crew.isPublished());
+        assertTrue(crew.isClosed());
+    }
+
+    @Test
+    @DisplayName("크루 설정 - 크루 상태 관리(크루원 모집 상태로 변경)")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void startRecruit() throws Exception{
+        Crew crew = crewService.findByTitle("test");
+        crewService.publish(crew);
+
+        assertTrue(crew.isPublished());
+        assertFalse(crew.isRecruiting());
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/settings/recruit/start")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/settings/status"))
+                .andExpect(flash().attributeExists("message"));
+
+        assertTrue(crew.isRecruiting());
+        assertTrue(crew.isPublished());
+    }
+
+    @Test
+    @DisplayName("크루 설정 - 크루 상태 관리(크루원 모집 중단 상태로 변경)")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void stopRecruit() throws Exception{
+        Crew crew = crewService.findByTitle("test");
+        crewService.publish(crew);
+        crewService.startRecruit(crew);
+        crew.setRecruitingUpdatedDateTime(LocalDateTime.now().minusMinutes(10));
+
+        assertTrue(crew.isPublished());
+        assertTrue(crew.isRecruiting());
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/settings/recruit/stop")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/settings/status"))
+                .andExpect(flash().attributeExists("message"));
+
+        assertTrue(crew.isPublished());
+        assertFalse(crew.isRecruiting());
+    }
+
+    @Test
+    @DisplayName("크루 설정 - 크루 이름 변경")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateCrewTitle() throws Exception{
+        String oldTitle = "test";
+        String newTitle = "test123";
+
+        Crew crew = crewService.findByTitle(oldTitle);
+        assertEquals(crew.getTitle(), oldTitle);
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/settings/status/title")
+                        .param("newTitle", newTitle)
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/settings/status"))
+                .andExpect(flash().attributeExists("message"));
+
+        assertEquals(crew.getTitle(),newTitle);
+    }
+
+    @Test
+    @DisplayName("크루 설정 - 크루 삭제")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void removeStatus() throws Exception{
+        Crew crew = crewService.findByTitle("test");
+
+        assertFalse(crew.isPublished());
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/settings/status/remove")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate"));
+
+        assertFalse(crewRepository.existsByTitle("test"));
     }
 }
