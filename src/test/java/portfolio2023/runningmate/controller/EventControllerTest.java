@@ -13,6 +13,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Crew;
+import portfolio2023.runningmate.domain.EventType;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.repository.CrewRepository;
@@ -21,9 +22,13 @@ import portfolio2023.runningmate.service.CrewService;
 
 import javax.transaction.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -75,4 +80,21 @@ public class EventControllerTest {
                 .andExpect(view().name("event/form"))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @DisplayName("모임 만들기")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void newEventSubmit() throws Exception{
+        Crew crew = crewService.findByTitle("test");
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/new-event")
+                        .param("title", "testMeeting")
+                        .param("description", "testMeeting")
+                        .param("endEnrollmentDateTime", LocalDateTime.now().plusHours(12).format(DateTimeFormatter.ISO_DATE_TIME))
+                        .param("startDateTime", LocalDateTime.now().plusDays(2).format(DateTimeFormatter.ISO_DATE_TIME))
+                        .param("endDateTime", LocalDateTime.now().plusDays(3).format(DateTimeFormatter.ISO_DATE_TIME))
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+    }
+
 }
