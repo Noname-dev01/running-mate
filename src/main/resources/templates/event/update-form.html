@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head.html :: head"></head>
+<body class="bg-light">
+    <nav th:replace="fragments/main-nav.html :: main-nav"></nav>
+    <div th:replace="fragments/crew/crew-banner.html :: crew-banner"></div>
+    <div class="container">
+        <div th:replace="fragments/event/event-form.html :: event-form (mode='edit', action='/running-mate/crew/' + ${crew.title}
+        + '/events/' + ${event.id} + '/edit')"></div>
+        <div th:replace="fragments/footer.html :: footer"></div>
+    </div>
+    <script th:replace="fragments/form-validation.html :: form-validation"></script>
+    <script th:replace="fragments/editor-script.html :: editor-script"></script>
+</body>
+</html>

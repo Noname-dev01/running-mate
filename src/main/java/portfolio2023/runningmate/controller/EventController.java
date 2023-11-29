@@ -92,4 +92,35 @@ public class EventController {
 
         return "crew/events";
     }
+
+    @GetMapping("/events/{id}/edit")
+    public String updateEventForm(@CurrentAccount Account account,
+                                  @PathVariable String title, @PathVariable Long id, Model model){
+        Crew crew = crewService.getCrewToUpdate(account, title);
+        Event event = eventService.findEventById(id);
+        model.addAttribute(crew);
+        model.addAttribute(account);
+        model.addAttribute(event);
+        model.addAttribute(modelMapper.map(event, EventForm.class));
+        return "event/update-form";
+    }
+
+    @PostMapping("/events/{id}/edit")
+    public String updateEventSubmit(@CurrentAccount Account account, @PathVariable String title,
+                                    @PathVariable Long id, @Valid EventForm eventForm, Errors errors, Model model){
+        Crew crew = crewService.getCrewToUpdate(account, title);
+        Event event = eventService.findEventById(id);
+        eventForm.setEventType(event.getEventType());
+        eventValidator.validateUpdateForm(eventForm, event, errors);
+
+        if (errors.hasErrors()){
+            model.addAttribute(account);
+            model.addAttribute(crew);
+            model.addAttribute(event);
+            return "event/update-form";
+        }
+
+        eventService.updateEvent(event, eventForm);
+        return "redirect:/running-mate/crew/"+crew.getEncodedTitle() + "/events/"+ event.getId();
+    }
 }

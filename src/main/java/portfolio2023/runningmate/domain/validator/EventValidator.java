@@ -3,6 +3,7 @@ package portfolio2023.runningmate.domain.validator;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import portfolio2023.runningmate.domain.Event;
 import portfolio2023.runningmate.domain.dto.EventForm;
 
 import java.time.LocalDateTime;
@@ -41,5 +42,11 @@ public class EventValidator implements Validator {
 
     private boolean isNotValidEndDateTime(EventForm eventForm) {
         return eventForm.getEndDateTime().isBefore(eventForm.getStartDateTime()) || eventForm.getEndDateTime().isBefore(eventForm.getEndEnrollmentDateTime());
+    }
+
+    public void validateUpdateForm(EventForm eventForm, Event event, Errors errors) {
+        if (eventForm.getLimitOfEnrollments() < event.getNumberOfAcceptedEnrollments()){
+            errors.rejectValue("limitOfEnrollments", "wrong.value", "확인된 참가 신청보다 모집 인원 수가 커야 합니다.");
+        }
     }
 }

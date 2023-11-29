@@ -106,4 +106,8 @@ public class Event {
     public boolean isSameDay(){
         return this.startDateTime.getDayOfWeek().equals(this.endDateTime.getDayOfWeek());
     }
+
+    public long getNumberOfAcceptedEnrollments() {
+        return this.enrollments.stream().filter(Enrollment::isAccepted).count();
+    }
 }
