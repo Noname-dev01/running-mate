@@ -152,12 +152,22 @@
                 </dd>
 
                 <dt class="fw-light">모임 일시</dt>
-                <dd>
+                <dd th:if="${event.isSameDay()}">
                     <span class="date" th:text="${event.startDateTime}"></span>
                     <span class="weekday" th:text="${event.startDateTime}"></span><br/>
                     <span class="time" th:text="${event.startDateTime}"></span> -
                     <span class="time" th:text="${event.endDateTime}"></span>
                 </dd>
+                <dd th:if="${!event.isSameDay()}">
+                    <span class="date" th:text="${event.startDateTime}"></span>
+                    <span class="weekday" th:text="${event.startDateTime}"></span><br/>
+                    <span class="time" th:text="${event.startDateTime}"></span>
+                    -
+                    <br/><span class="date" th:text="${event.endDateTime}"></span>
+                    <span class="weekday" th:text="${event.endDateTime}"></span><br/>
+                    <span class="time" th:text="${event.endDateTime}"></span>
+                </dd>
+
 
                 <dt class="fw-light">모임장</dt>
                 <dd>

@@ -9,6 +9,8 @@ import portfolio2023.runningmate.domain.Event;
 import portfolio2023.runningmate.repository.EventRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -27,4 +29,10 @@ public class EventService {
     public Event findById(Long id) {
         return eventRepository.findById(id).orElseThrow();
     }
+
+    public List<Event> findCrewEvents(Crew crew) {
+        return eventRepository.findByCrewOrderByStartDateTime(crew);
+    }
+
+
 }

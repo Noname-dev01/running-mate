@@ -98,4 +98,12 @@ public class Event {
                 && !enrollment.isAttended()
                 && enrollment.isAccepted();
     }
+
+    public int numberOfRemainSpots(){
+        return this.limitOfEnrollments - (int) this.enrollments.stream().filter(Enrollment::isAccepted).count();
+    }
+
+    public boolean isSameDay(){
+        return this.startDateTime.getDayOfWeek().equals(this.endDateTime.getDayOfWeek());
+    }
 }

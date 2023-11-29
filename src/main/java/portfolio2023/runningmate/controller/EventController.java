@@ -1,6 +1,7 @@
 package portfolio2023.runningmate.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,10 +18,14 @@ import portfolio2023.runningmate.service.CrewService;
 import portfolio2023.runningmate.service.EventService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/running-mate/crew/{title}")
 @RequiredArgsConstructor
+@Slf4j
 public class EventController {
 
     private final CrewService crewService;
@@ -54,7 +59,6 @@ public class EventController {
         }
 
         Event event = eventService.createEvent(modelMapper.map(eventForm, Event.class), crew, account);
-
         return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/events/" + event.getId();
     }
 
@@ -64,5 +68,28 @@ public class EventController {
         model.addAttribute(eventService.findById(id));
         model.addAttribute(crewService.getCrew(title));
         return "event/view";
+    }
+
+    @GetMapping("/events")
+    public String viewCrewEvents(@CurrentAccount Account account, @PathVariable String title, Model model){
+        Crew crew = crewService.getCrew(title);
+        model.addAttribute(account);
+        model.addAttribute(crew);
+
+        List<Event> events = eventService.findCrewEvents(crew);
+        List<Event> newEvents = new ArrayList<>();
+        List<Event> oldEvents = new ArrayList<>();
+        events.forEach(e -> {
+            if (e.getEndDateTime().isBefore(LocalDateTime.now())){
+                oldEvents.add(e);
+            }else {
+                newEvents.add(e);
+            }
+        });
+
+        model.addAttribute("newEvents", newEvents);
+        model.addAttribute("oldEvents", oldEvents);
+
+        return "crew/events";
     }
 }
