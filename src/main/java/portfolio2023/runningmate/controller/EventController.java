@@ -57,4 +57,12 @@ public class EventController {
 
         return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/events/" + event.getId();
     }
+
+    @GetMapping("/events/{id}")
+    public String getEvent(@CurrentAccount Account account, @PathVariable String title, @PathVariable Long id, Model model){
+        model.addAttribute(account);
+        model.addAttribute(eventService.findById(id));
+        model.addAttribute(crewService.getCrew(title));
+        return "event/view";
+    }
 }

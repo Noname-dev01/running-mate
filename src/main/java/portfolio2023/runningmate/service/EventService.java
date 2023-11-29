@@ -18,9 +18,13 @@ public class EventService {
     private final EventRepository eventRepository;
 
     public Event createEvent(Event event, Crew crew, Account account) {
-        event.setCreateBy(account);
+        event.setCreatedBy(account);
         event.setCreatedDateTime(LocalDateTime.now());
         event.setCrew(crew);
         return eventRepository.save(event);
+    }
+
+    public Event findById(Long id) {
+        return eventRepository.findById(id).orElseThrow();
     }
 }

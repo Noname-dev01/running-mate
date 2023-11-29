@@ -13,12 +13,14 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Crew;
+import portfolio2023.runningmate.domain.Event;
 import portfolio2023.runningmate.domain.EventType;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.repository.CrewRepository;
 import portfolio2023.runningmate.service.AccountService;
 import portfolio2023.runningmate.service.CrewService;
+import portfolio2023.runningmate.service.EventService;
 
 import javax.transaction.Transactional;
 
@@ -41,6 +43,7 @@ public class EventControllerTest {
     @Autowired CrewService crewService;
     @Autowired CrewRepository crewRepository;
     @Autowired MockMvc mockMvc;
+    @Autowired EventService eventService;
 
     @BeforeEach
     void beforeEach() {
@@ -95,6 +98,25 @@ public class EventControllerTest {
                         .param("endDateTime", LocalDateTime.now().plusDays(3).format(DateTimeFormatter.ISO_DATE_TIME))
                 .with(csrf()))
                 .andExpect(status().is3xxRedirection());
+    }
+
+    @Test
+    @DisplayName("모임 만들기 - 실패")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void newEventSubmit_fail() throws Exception {
+        Crew crew = crewService.findByTitle("test");
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/new-event")
+                        .param("title", "testMeeting")
+                        .param("description", "testMeeting")
+                        .param("endEnrollmentDateTime", LocalDateTime.now().plusHours(12).format(DateTimeFormatter.ISO_DATE_TIME))
+                        .param("startDateTime", LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ISO_DATE_TIME))
+                        .param("endDateTime", LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ISO_DATE_TIME))
+                        .with(csrf()))
+                .andExpect(model().hasErrors())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("crew"))
+                .andExpect(status().isOk());
     }
 
 }
