@@ -205,7 +205,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-                            <form th:action="@{'/running-mate/crew/' + ${crew.title} + '/events/' + ${event.id}}" th:method="delete">
+                            <form th:action="@{'/running-mate/crew/' + ${crew.title} + '/events/' + ${event.id}+'/delete'}" method="post">
                                 <button class="btn btn-primary" type="submit" aria-describedby="submitHelp">확인</button>
                             </form>
                         </div>

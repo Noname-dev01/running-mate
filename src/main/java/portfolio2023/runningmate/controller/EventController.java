@@ -123,4 +123,12 @@ public class EventController {
         eventService.updateEvent(event, eventForm);
         return "redirect:/running-mate/crew/"+crew.getEncodedTitle() + "/events/"+ event.getId();
     }
+
+    @PostMapping("/events/{id}/delete")
+    public String cancelEvent(@CurrentAccount Account account, @PathVariable String title, @PathVariable Long id){
+        Crew crew = crewService.getCrewToUpdateStatus(account, title);
+        Event event = eventService.findEventById(id);
+        eventService.deleteEvent(event);
+        return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/events";
+    }
 }

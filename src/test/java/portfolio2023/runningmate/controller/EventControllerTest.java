@@ -1,5 +1,6 @@
 package portfolio2023.runningmate.controller;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,7 +16,10 @@ import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Crew;
 import portfolio2023.runningmate.domain.Event;
 import portfolio2023.runningmate.domain.EventType;
+import portfolio2023.runningmate.domain.dto.EventForm;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
+import portfolio2023.runningmate.factory.AccountFactory;
+import portfolio2023.runningmate.factory.CrewFactory;
 import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.repository.CrewRepository;
 import portfolio2023.runningmate.service.AccountService;
@@ -44,6 +48,8 @@ public class EventControllerTest {
     @Autowired CrewRepository crewRepository;
     @Autowired MockMvc mockMvc;
     @Autowired EventService eventService;
+    @Autowired AccountFactory accountFactory;
+    @Autowired CrewFactory crewFactory;
 
     @BeforeEach
     void beforeEach() {
@@ -52,19 +58,10 @@ public class EventControllerTest {
         signUpForm.setEmail("admin@email.com");
         signUpForm.setPassword("12345678");
         accountService.processNewAccount(signUpForm);
-
-        Account account = accountRepository.findByNickname("admin");
-
-        Crew crew = new Crew();
-        crew.setTitle("test");
-        crew.setShortDescription("short description");
-        crew.setFullDescription("full description");
-        crewService.createNewCrew(crew, account);
     }
 
     @AfterEach
     void afterEach() {
-        crewRepository.deleteAll();
         accountRepository.deleteAll();
     }
 
@@ -117,6 +114,32 @@ public class EventControllerTest {
                 .andExpect(model().attributeExists("account"))
                 .andExpect(model().attributeExists("crew"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("모임 취소")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void cancelEvent() throws Exception {
+        Account account = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", account);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, account);
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()+"/delete")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+
+    }
+
+    private Event createEvent(String eventTitle, EventType eventType, int limit, Crew crew, Account account) {
+        Event event = new Event();
+        event.setEventType(eventType);
+        event.setLimitOfEnrollments(limit);
+        event.setTitle(eventTitle);
+        event.setCreatedDateTime(LocalDateTime.now());
+        event.setEndEnrollmentDateTime(LocalDateTime.now().plusDays(1));
+        event.setStartDateTime(LocalDateTime.now().plusDays(1).plusHours(5));
+        event.setEndDateTime(LocalDateTime.now().plusDays(1).plusHours(7));
+        return eventService.createEvent(event, crew, account);
     }
 
 }
