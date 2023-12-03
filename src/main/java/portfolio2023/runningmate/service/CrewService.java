@@ -154,4 +154,10 @@ public class CrewService {
     public void removeAccount(Crew crew, Account account) {
         crew.removeAccount(account);
     }
+
+    public Crew getCrewToEnroll(String title) {
+        Crew crew = crewRepository.findCrewOnlyByTitle(title);
+        checkIfExistingCrew(title, crew);
+        return crew;
+    }
 }

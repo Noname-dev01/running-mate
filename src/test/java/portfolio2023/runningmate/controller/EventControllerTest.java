@@ -12,16 +12,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.TestExecutionEvent;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
-import portfolio2023.runningmate.domain.Account;
-import portfolio2023.runningmate.domain.Crew;
-import portfolio2023.runningmate.domain.Event;
-import portfolio2023.runningmate.domain.EventType;
+import portfolio2023.runningmate.domain.*;
 import portfolio2023.runningmate.domain.dto.EventForm;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.factory.AccountFactory;
 import portfolio2023.runningmate.factory.CrewFactory;
 import portfolio2023.runningmate.repository.AccountRepository;
 import portfolio2023.runningmate.repository.CrewRepository;
+import portfolio2023.runningmate.repository.EnrollmentRepository;
 import portfolio2023.runningmate.service.AccountService;
 import portfolio2023.runningmate.service.CrewService;
 import portfolio2023.runningmate.service.EventService;
@@ -50,6 +48,7 @@ public class EventControllerTest {
     @Autowired EventService eventService;
     @Autowired AccountFactory accountFactory;
     @Autowired CrewFactory crewFactory;
+    @Autowired EnrollmentRepository enrollmentRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -70,7 +69,8 @@ public class EventControllerTest {
     @DisplayName("모임 만들기 뷰")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void newEventForm() throws Exception {
-        Crew crew = crewService.findByTitle("test");
+        Account account = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", account);
 
         mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/new-event")
                 .with(csrf()))
@@ -85,7 +85,8 @@ public class EventControllerTest {
     @DisplayName("모임 만들기")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void newEventSubmit() throws Exception{
-        Crew crew = crewService.findByTitle("test");
+        Account account = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", account);
 
         mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/new-event")
                         .param("title", "testMeeting")
@@ -101,7 +102,8 @@ public class EventControllerTest {
     @DisplayName("모임 만들기 - 실패")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void newEventSubmit_fail() throws Exception {
-        Crew crew = crewService.findByTitle("test");
+        Account account = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", account);
 
         mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/new-event")
                         .param("title", "testMeeting")
@@ -117,6 +119,79 @@ public class EventControllerTest {
     }
 
     @Test
+    @DisplayName("모임 조회 뷰")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void getEvent() throws Exception{
+        Account account = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", account);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, account);
+
+        mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId())
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("event"))
+                .andExpect(model().attributeExists("crew"))
+                .andExpect(view().name("event/view"));
+    }
+
+    @Test
+    @DisplayName("크루 모임 목록 조회")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void viewCrewEvents() throws Exception{
+        Account account = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", account);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, account);
+
+        mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/events")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("crew"))
+                .andExpect(model().attributeExists("newEvents"))
+                .andExpect(model().attributeExists("oldEvents"))
+                .andExpect(view().name("crew/events"));
+
+    }
+
+    @Test
+    @DisplayName("모임 수정 뷰")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateEventForm() throws Exception{
+        Account account = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", account);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, account);
+
+        mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()+"/edit")
+                .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(model().attributeExists("crew"))
+                .andExpect(model().attributeExists("account"))
+                .andExpect(model().attributeExists("event"))
+                .andExpect(model().attributeExists("eventForm"))
+                .andExpect(view().name("event/update-form"));
+    }
+
+    @Test
+    @DisplayName("모임 수정")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void updateEventSubmit() throws Exception{
+        Account account = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", account);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, account);
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()+"/edit")
+                        .param("title", "update-test-event")
+                        .param("endEnrollmentDateTime", event.getEndEnrollmentDateTime().format(DateTimeFormatter.ISO_DATE_TIME))
+                        .param("startDateTime", event.getStartDateTime().format(DateTimeFormatter.ISO_DATE_TIME))
+                        .param("endDateTime", event.getEndDateTime().format(DateTimeFormatter.ISO_DATE_TIME))
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection());
+
+        assertEquals(event.getTitle(), "update-test-event");
+    }
+
+    @Test
     @DisplayName("모임 취소")
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void cancelEvent() throws Exception {
@@ -129,6 +204,128 @@ public class EventControllerTest {
                 .andExpect(status().is3xxRedirection());
 
     }
+
+    @Test
+    @DisplayName("선착순 모임에 참가 신청 - 자동 수락")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void newEnrollment_FCFS_event_accpted() throws Exception{
+        Account account = accountFactory.createAccount("test");
+        Crew crew = crewFactory.createCrew("test-crew", account);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, account);
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()+"/enroll")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()));
+
+        Account admin = accountService.findByNickname("admin");
+        assertTrue(enrollmentRepository.findByEventAndAccount(event,admin).isAccepted());
+    }
+
+    @Test
+    @DisplayName("선착순 모임에 참가 신청 - 대기중 (모집 인원이 초과한 경우)")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void newEnrollment_FCFS_event_not_accepted() throws Exception{
+        Account test = accountFactory.createAccount("test");
+        Crew crew = crewFactory.createCrew("test-crew", test);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, test);
+
+        Account account1 = accountFactory.createAccount("account1");
+        Account account2 = accountFactory.createAccount("account2");
+        eventService.newEnrollment(event, account1);
+        eventService.newEnrollment(event, account2);
+
+        mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()+"/enroll")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()));
+
+        Account account = accountService.findByNickname("admin");
+        isNotAccepted(account, event);
+    }
+
+    @Test
+    @DisplayName("참가신청 확정자가 선착순 모임에 참가 신청을 취소하는 경우, 바로 다음 대기자를 자동으로 신청 확인한다.")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    void accepted_account_cancelEnrollment_to_FCFS_event_not_accepted() throws Exception {
+        Account account = accountRepository.findByNickname("admin");
+        Account test = accountFactory.createAccount("test");
+        Account may = accountFactory.createAccount("may");
+        Crew crew = crewFactory.createCrew("test-crew", test);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, test);
+
+        eventService.newEnrollment(event, may);
+        eventService.newEnrollment(event, account);
+        eventService.newEnrollment(event, test);
+
+        isAccepted(may, event);
+        isAccepted(account, event);
+        isNotAccepted(test, event);
+
+        mockMvc.perform(post("/running-mate/crew/" + crew.getTitle() + "/events/" + event.getId() + "/disenroll")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/" + crew.getTitle() + "/events/" + event.getId()));
+
+        isAccepted(may, event);
+        isAccepted(test, event);
+        assertNull(enrollmentRepository.findByEventAndAccount(event, account));
+    }
+
+    @Test
+    @DisplayName("참가신청 비확정자가 선착순 모임에 참가 신청을 취소하는 경우, 기존 확정자를 그대로 유지하고 새로운 확정자는 없다.")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    void not_accepterd_account_cancelEnrollment_to_FCFS_event_not_accepted() throws Exception {
+        Account admin = accountRepository.findByNickname("admin");
+        Account test = accountFactory.createAccount("test");
+        Account may = accountFactory.createAccount("may");
+        Crew crew = crewFactory.createCrew("test-crew", test);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, test);
+
+        eventService.newEnrollment(event, may);
+        eventService.newEnrollment(event, test);
+        eventService.newEnrollment(event, admin);
+
+        isAccepted(may, event);
+        isAccepted(test, event);
+        isNotAccepted(admin, event);
+
+        mockMvc.perform(post("/running-mate/crew/" + crew.getTitle() + "/events/" + event.getId() + "/disenroll")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/" + crew.getTitle() + "/events/" + event.getId()));
+
+        isAccepted(may, event);
+        isAccepted(test, event);
+        assertNull(enrollmentRepository.findByEventAndAccount(event, admin));
+    }
+
+    @Test
+    @DisplayName("관리자 확인 모임에 참가 신청 - 대기중")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    void newEnrollment_to_CONFIMATIVE_event_not_accepted() throws Exception {
+        Account test = accountFactory.createAccount("test");
+        Crew crew = crewFactory.createCrew("test-crew", test);
+        Event event = createEvent("test-event", EventType.CONFIRMATIVE, 2, crew, test);
+
+        mockMvc.perform(post("/running-mate/crew/" + crew.getTitle() + "/events/" + event.getId() + "/enroll")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/" + crew.getTitle() + "/events/" + event.getId()));
+
+        Account admin = accountRepository.findByNickname("admin");
+        isNotAccepted(admin, event);
+    }
+
+
+    private void isNotAccepted(Account account, Event event) {
+        assertFalse(enrollmentRepository.findByEventAndAccount(event, account).isAccepted());
+    }
+
+    private void isAccepted(Account account, Event event) {
+        assertTrue(enrollmentRepository.findByEventAndAccount(event, account).isAccepted());
+    }
+
 
     private Event createEvent(String eventTitle, EventType eventType, int limit, Crew crew, Account account) {
         Event event = new Event();

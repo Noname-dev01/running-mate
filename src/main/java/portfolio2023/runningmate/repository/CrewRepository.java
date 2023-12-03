@@ -21,4 +21,6 @@ public interface CrewRepository extends JpaRepository<Crew,Long> {
 
     @EntityGraph(attributePaths = "manager")
     Crew findCrewWithManagerByTitle(String title);
+
+    Crew findCrewOnlyByTitle(String title);
 }

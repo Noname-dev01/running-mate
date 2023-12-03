@@ -131,4 +131,19 @@ public class EventController {
         eventService.deleteEvent(event);
         return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/events";
     }
+
+    @PostMapping("/events/{id}/enroll")
+    public String newEnrollment(@CurrentAccount Account account, @PathVariable String title, @PathVariable("id") Event event){
+        Crew crew = crewService.getCrewToEnroll(title);
+        eventService.newEnrollment(event, account);
+        return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/events/"+event.getId();
+    }
+
+    @PostMapping("/events/{id}/disenroll")
+    public String cancelEnrollment(@CurrentAccount Account account, @PathVariable String title, @PathVariable Long id){
+        Crew crew = crewService.getCrewToEnroll(title);
+        Event event = eventService.findEventById(id);
+        eventService.cancelEnrollment(event, account);
+        return "redirect:/running-mate/crew/"+crew.getEncodedTitle()+"/events/"+id;
+    }
 }
