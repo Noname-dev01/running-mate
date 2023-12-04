@@ -22,6 +22,7 @@ import portfolio2023.runningmate.repository.CrewRepository;
 import portfolio2023.runningmate.repository.EnrollmentRepository;
 import portfolio2023.runningmate.service.AccountService;
 import portfolio2023.runningmate.service.CrewService;
+import portfolio2023.runningmate.service.EnrollmentService;
 import portfolio2023.runningmate.service.EventService;
 
 import javax.transaction.Transactional;
@@ -49,6 +50,8 @@ public class EventControllerTest {
     @Autowired AccountFactory accountFactory;
     @Autowired CrewFactory crewFactory;
     @Autowired EnrollmentRepository enrollmentRepository;
+    @Autowired
+    EnrollmentService enrollmentService;
 
     @BeforeEach
     void beforeEach() {
@@ -317,6 +320,77 @@ public class EventControllerTest {
         isNotAccepted(admin, event);
     }
 
+    @Test
+    @DisplayName("관리자 승인 모임에 참가 신청 - 승인 받은후 참가 상태 확정(참가신청 수락)")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void CONFIRMATIVE_event_accepted() throws Exception{
+        Account admin = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", admin);
+        Event event = createEvent("test-event", EventType.CONFIRMATIVE, 2, crew, admin);
+        eventService.newEnrollment(event, admin);
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, admin);
+
+        mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()+"/enrollments/"+enrollment.getId()+"/accept")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()));
+
+        assertTrue(enrollment.isAccepted());
+    }
+
+    @Test
+    @DisplayName("관리자 승인 모임에 참가 신청 - 참가신청 취소")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void rejectEnrollment_notAccepted() throws Exception{
+        Account admin = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", admin);
+        Event event = createEvent("test-event", EventType.CONFIRMATIVE, 2, crew, admin);
+        eventService.newEnrollment(event, admin);
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, admin);
+
+        mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()+"/enrollments/"+enrollment.getId()+"/reject")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()));
+
+        assertFalse(enrollment.isAccepted());
+    }
+
+    @Test
+    @DisplayName("모임 출석체크 (모임 관리자만 가능)")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void checkInEnrollment() throws Exception{
+        Account admin = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", admin);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, admin);
+        eventService.newEnrollment(event, admin);
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, admin);
+
+        mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()+"/enrollments/"+enrollment.getId()+"/checkin")
+                .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()));
+
+        assertTrue(enrollment.isAttended());
+    }
+
+    @Test
+    @DisplayName("모임 출석체크 취소 (모임 관리자만 가능)")
+    @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    public void cancelCheckInEnrollment() throws Exception {
+        Account admin = accountService.findByNickname("admin");
+        Crew crew = crewFactory.createCrew("test-crew", admin);
+        Event event = createEvent("test-event", EventType.FCFS, 2, crew, admin);
+        eventService.newEnrollment(event, admin);
+        Enrollment enrollment = enrollmentRepository.findByEventAndAccount(event, admin);
+
+        mockMvc.perform(get("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()+"/enrollments/"+enrollment.getId()+"/cancel-checkin")
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/events/"+event.getId()));
+
+        assertFalse(enrollment.isAttended());
+    }
 
     private void isNotAccepted(Account account, Event event) {
         assertFalse(enrollmentRepository.findByEventAndAccount(event, account).isAccepted());
@@ -338,5 +412,6 @@ public class EventControllerTest {
         event.setEndDateTime(LocalDateTime.now().plusDays(1).plusHours(7));
         return eventService.createEvent(event, crew, account);
     }
+
 
 }
