@@ -30,7 +30,9 @@ public class AccountController {
 
     @GetMapping
     public String runningMateHome(@CurrentAccount Account account, Model model){
-        model.addAttribute("account", account);
+        if (account != null){
+            model.addAttribute("account", account);
+        }
         return "index";
     }
 
