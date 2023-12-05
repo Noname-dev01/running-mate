@@ -2,6 +2,7 @@ package portfolio2023.runningmate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import portfolio2023.runningmate.domain.Crew;
 import portfolio2023.runningmate.domain.Tag;
 import portfolio2023.runningmate.domain.Zone;
 import portfolio2023.runningmate.domain.dto.CrewDescriptionForm;
+import portfolio2023.runningmate.domain.event.CrewCreatedEvent;
 import portfolio2023.runningmate.repository.CrewRepository;
 import portfolio2023.runningmate.repository.TagRepository;
 
@@ -20,11 +22,12 @@ public class CrewService {
 
     private final CrewRepository crewRepository;
     private final ModelMapper modelMapper;
-    private final TagRepository tagRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Crew createNewCrew(Crew crew, Account account) {
         Crew newCrew = crewRepository.save(crew);
         newCrew.setManager(account);
+        eventPublisher.publishEvent(new CrewCreatedEvent(newCrew));
         return newCrew;
     }
 
