@@ -7,16 +7,16 @@ import portfolio2023.runningmate.domain.Account;
 @Data
 public class Notifications {
 
-    private boolean runningCreatedByEmail;
+    private boolean CrewCreatedByEmail;
 
-    private boolean runningCreatedByWeb;
+    private boolean CrewCreatedByWeb;
 
-    private boolean runningRecruitByEmail;
+    private boolean CrewRecruitByEmail;
 
-    private boolean runningRecruitByWeb;
+    private boolean CrewRecruitByWeb;
 
-    private boolean runningUpdatedByEmail;
+    private boolean CrewUpdatedByEmail;
 
-    private boolean runningUpdatedByWeb;
+    private boolean CrewUpdatedByWeb;
 
 }

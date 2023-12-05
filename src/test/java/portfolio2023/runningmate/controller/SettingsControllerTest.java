@@ -162,16 +162,16 @@ public class SettingsControllerTest {
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void updateNotifications_success() throws Exception {
         mockMvc.perform(post("/running-mate/settings/notifications")
-                        .param("runningUpdatedByEmail", "true")
+                        .param("crewUpdatedByEmail", "true")
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/running-mate/settings/notifications"))
                 .andExpect(flash().attributeExists("message"));
 
         Account account = accountService.findByNickname("admin");
-        assertFalse(account.isRunningCreatedByEmail());
-        assertFalse(account.isRunningRecruitByEmail());
-        assertTrue(account.isRunningUpdatedByEmail());
+        assertFalse(account.isCrewCreatedByEmail());
+        assertFalse(account.isCrewRecruitByEmail());
+        assertTrue(account.isCrewUpdatedByEmail());
     }
 
     @Test

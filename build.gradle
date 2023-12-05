@@ -2,6 +2,8 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '2.7.17'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+	//querydsl 플러그인 추가
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 	id "com.github.node-gradle.node" version "5.0.0"
 }
 
@@ -23,6 +25,9 @@ repositories {
 }
 
 dependencies {
+	//querydsl
+	implementation 'com.querydsl:querydsl-apt'
+	implementation 'com.querydsl:querydsl-jpa'
 	//Model Mapper
 	implementation 'org.modelmapper:modelmapper:2.3.6'
 	//mail sender
@@ -108,3 +113,30 @@ node {
 }
 
 processResources.dependsOn('npmInstall')
+
+/**
+ * queryDsl 설정 추가
+ */
+//queryDsl에서 사용할 경로 설정
+def querydslDir = "$buildDir/generated/querydsl"
+//JPA 사용 여부와 사용할 경로를 설정
+querydsl{
+	library = "com.querydsl:querydsl-apt"
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+//build 시 사용할 sourceSet 추가
+sourceSets {
+	main.java.srcDir querydslDir
+}
+//querydsl 컴파일시 사용할 옵션 설정
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+//querydsl이 compileClassPath를 상속하도록 설정
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
+}

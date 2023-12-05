@@ -27,7 +27,6 @@ public class CrewService {
     public Crew createNewCrew(Crew crew, Account account) {
         Crew newCrew = crewRepository.save(crew);
         newCrew.setManager(account);
-        eventPublisher.publishEvent(new CrewCreatedEvent(newCrew));
         return newCrew;
     }
 
@@ -120,6 +119,7 @@ public class CrewService {
 
     public void publish(Crew crew) {
         crew.publish();
+        eventPublisher.publishEvent(new CrewCreatedEvent(crew));
     }
 
     public void close(Crew crew){

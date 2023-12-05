@@ -23,4 +23,7 @@ public interface CrewRepository extends JpaRepository<Crew,Long> {
     Crew findCrewWithManagerByTitle(String title);
 
     Crew findCrewOnlyByTitle(String title);
+
+    @EntityGraph(attributePaths = {"tags", "zones"}, type = EntityGraph.EntityGraphType.FETCH)
+    Crew findCrewWithTagsAndZonesById(Long id);
 }

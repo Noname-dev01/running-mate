@@ -42,17 +42,17 @@ public class Account {
     @Lob @Basic(fetch = FetchType.EAGER)
     private String profileImage;
 
-    private boolean runningCreatedByEmail;
+    private boolean CrewCreatedByEmail;
 
-    private boolean runningCreatedByWeb =true;
+    private boolean CrewCreatedByWeb =true;
 
-    private boolean runningRecruitByEmail;
+    private boolean CrewRecruitByEmail;
 
-    private boolean runningRecruitByWeb = true;
+    private boolean CrewRecruitByWeb = true;
 
-    private boolean runningUpdatedByEmail;
+    private boolean CrewUpdatedByEmail;
 
-    private boolean runningUpdatedByWeb = true;
+    private boolean CrewUpdatedByWeb = true;
 
     @ManyToMany
     private Set<Tag> tags = new HashSet<>();
