@@ -56,7 +56,7 @@ public class CrewEventListener {
         notification.setTitle(crew.getTitle());
         notification.setLink("/running-mate/crew/"+ crew.getEncodedTitle());
         notification.setChecked(false);
-        notification.setCreatedLocalDateTime(LocalDateTime.now());
+        notification.setCreatedDateTime(LocalDateTime.now());
         notification.setMessage(crew.getShortDescription());
         notification.setAccount(account);
         notification.setNotificationType(NotificationType.CREW_CREATED);

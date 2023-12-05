@@ -34,14 +34,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class AccountControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-    @Autowired
-    private AccountRepository accountRepository;
-    @MockBean
-    private EmailService emailService;
-    @Autowired
-    private AccountService accountService;
+    @Autowired MockMvc mockMvc;
+    @Autowired AccountRepository accountRepository;
+    @MockBean EmailService emailService;
+    @Autowired AccountService accountService;
 
     @Test
     @DisplayName("회원 가입 화면 뷰 테스트")
