@@ -12,8 +12,8 @@ import portfolio2023.runningmate.domain.Tag;
 import portfolio2023.runningmate.domain.Zone;
 import portfolio2023.runningmate.domain.dto.CrewDescriptionForm;
 import portfolio2023.runningmate.domain.event.CrewCreatedEvent;
+import portfolio2023.runningmate.domain.event.CrewUpdateEvent;
 import portfolio2023.runningmate.repository.CrewRepository;
-import portfolio2023.runningmate.repository.TagRepository;
 
 @Service
 @Transactional
@@ -54,6 +54,7 @@ public class CrewService {
 
     public void updateCrewDescription(Crew crew, CrewDescriptionForm crewDescriptionForm){
         modelMapper.map(crewDescriptionForm, crew);
+        eventPublisher.publishEvent(new CrewUpdateEvent(crew, "크루 소개를 수정했습니다."));
     }
 
     public void updateCrewImage(Crew crew, String image) {
@@ -124,14 +125,17 @@ public class CrewService {
 
     public void close(Crew crew){
         crew.close();
+        eventPublisher.publishEvent(new CrewUpdateEvent(crew, "크루를 종료했습니다."));
     }
 
     public void startRecruit(Crew crew){
         crew.startRecruit();
+        eventPublisher.publishEvent(new CrewUpdateEvent(crew, "크루원 모집을 시작합니다."));
     }
 
     public void stopRecruit(Crew crew){
         crew.stopRecruit();
+        eventPublisher.publishEvent(new CrewUpdateEvent(crew, "크루원 모집을 중단했습니다."));
     }
 
     public boolean isValidTitle(String newTitle) {

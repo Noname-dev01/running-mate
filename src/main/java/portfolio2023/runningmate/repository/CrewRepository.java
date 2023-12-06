@@ -26,4 +26,7 @@ public interface CrewRepository extends JpaRepository<Crew,Long> {
 
     @EntityGraph(attributePaths = {"tags", "zones"}, type = EntityGraph.EntityGraphType.FETCH)
     Crew findCrewWithTagsAndZonesById(Long id);
+
+    @EntityGraph(attributePaths = {"members", "manager"})
+    Crew findCrewWithManagersAndMembersById(Long id);
 }

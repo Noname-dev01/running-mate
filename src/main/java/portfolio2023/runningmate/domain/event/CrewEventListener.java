@@ -21,6 +21,8 @@ import portfolio2023.runningmate.repository.NotificationRepository;
 import portfolio2023.runningmate.security.config.AppProperties;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 @Async
@@ -42,38 +44,58 @@ public class CrewEventListener {
         Iterable<Account> accounts = accountRepository.findAll(AccountPredicates.findByTagsAndZones(crew.getTags(), crew.getZones()));
         accounts.forEach(account -> {
             if (account.isCrewCreatedByEmail()){
-                sendCrewCreatedEmail(account, crew);
+                sendCrewCreatedEmail(account, crew, "새로운 크루가 생겼습니다.",
+                        "러닝 메이트, '" + crew.getTitle() + "' 크루가 생겼습니다.");
             }
 
             if (account.isCrewCreatedByWeb()){
-                sendCrewCreatedNoti(account, crew);
+                sendCrewNotification(account, crew, crew.getShortDescription(), NotificationType.CREW_CREATED);
             }
         });
     }
 
-    private void sendCrewCreatedNoti(Account account, Crew crew) {
+    @EventListener
+    public void handleCrewUpdateEvent(CrewUpdateEvent crewUpdateEvent){
+        Crew crew = crewRepository.findCrewWithManagersAndMembersById(crewUpdateEvent.getCrew().getId());
+        Set<Account> accounts = new HashSet<>();
+        accounts.addAll(crew.getMembers());
+        accounts.add(crew.getManager());
+
+        accounts.forEach(account -> {
+            if (account.isCrewUpdatedByEmail()){
+                sendCrewCreatedEmail(account, crew, crewUpdateEvent.getMessage(),
+                        "러닝 메이트, '" + crew.getTitle() + "' 크루에 새소식이 있습니다.");
+            }
+
+            if (account.isCrewUpdatedByWeb()){
+                sendCrewNotification(account, crew, crewUpdateEvent.getMessage(), NotificationType.CREW_UPDATED);
+            }
+        });
+    }
+
+    private void sendCrewNotification(Account account, Crew crew, String message, NotificationType notificationType) {
         Notification notification = new Notification();
         notification.setTitle(crew.getTitle());
         notification.setLink("/running-mate/crew/"+ crew.getEncodedTitle());
         notification.setChecked(false);
         notification.setCreatedDateTime(LocalDateTime.now());
-        notification.setMessage(crew.getShortDescription());
+        notification.setMessage(message);
         notification.setAccount(account);
-        notification.setNotificationType(NotificationType.CREW_CREATED);
+        notification.setNotificationType(notificationType);
         notificationRepository.save(notification);
     }
 
-    private void sendCrewCreatedEmail(Account account, Crew crew) {
+    private void sendCrewCreatedEmail(Account account, Crew crew, String contextMessage, String emailSubject) {
         Context context = new Context();
         context.setVariable("nickname", account.getNickname());
         context.setVariable("link", "/running-mate/crew/"+ crew.getEncodedTitle());
         context.setVariable("linkName", crew.getTitle());
-        context.setVariable("message", "새로운 크루가 생겼습니다.");
+        context.setVariable("message", contextMessage);
         context.setVariable("host", appProperties.getHost());
         String message = templateEngine.process("mail/simple-link", context);
 
         EmailMessage emailMessage = EmailMessage.builder()
-                .subject("러닝 메이트, '" + crew.getTitle() + "' 크루가 생겼습니다.")
+                .subject(emailSubject)
                 .to(account.getEmail())
                 .message(message)
                 .build();
