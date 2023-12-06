@@ -3,6 +3,8 @@ package portfolio2023.runningmate.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,8 @@ import portfolio2023.runningmate.domain.dto.CrewDescriptionForm;
 import portfolio2023.runningmate.domain.event.CrewCreatedEvent;
 import portfolio2023.runningmate.domain.event.CrewUpdateEvent;
 import portfolio2023.runningmate.repository.CrewRepository;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -167,4 +171,9 @@ public class CrewService {
         checkIfExistingCrew(title, crew);
         return crew;
     }
+
+    public Page<Crew> searchKeyword(String keyword, Pageable pageable) {
+        return crewRepository.findByKeyword(keyword, pageable);
+    }
+
 }

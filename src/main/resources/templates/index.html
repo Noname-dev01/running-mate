@@ -7,6 +7,12 @@
     러닝 메이트 가입을 완료하려면 <a href="#" th:href="@{/running-mate/check-email}" class="alert-link">계정 인증 이메일을 확인</a>하세요.
 </div>
 
+<div class="container">
+    <div class="row justify-content-center pt-3">
+        <div th:replace="fragments/crew/crew-list.html :: crew-list (crewList=${crewList})"></div>
+    </div>
+</div>
+
 <footer th:replace="fragments/footer.html :: footer"></footer>
 </body>
 </html>

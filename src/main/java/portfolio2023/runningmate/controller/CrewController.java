@@ -3,6 +3,10 @@ package portfolio2023.runningmate.controller;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -18,6 +22,7 @@ import portfolio2023.runningmate.service.CrewService;
 import javax.validation.Valid;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Controller
 @RequestMapping("/running-mate")
@@ -80,6 +85,15 @@ public class CrewController {
         Crew crew = crewService.findMembersByTitle(title);
         crewService.removeAccount(crew, account);
         return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/members";
+    }
+
+    @GetMapping("/search/crew")
+    public String searchCrew(String keyword, Model model,
+            @PageableDefault(size = 9,sort = "publishedDateTime", direction = Sort.Direction.DESC) Pageable pageable){
+        Page<Crew> crewPage = crewService.searchKeyword(keyword, pageable);
+        model.addAttribute("crewPage",crewPage);
+        model.addAttribute("keyword", keyword);
+        return "crew/search";
     }
 
 }
