@@ -93,6 +93,8 @@ public class CrewController {
         Page<Crew> crewPage = crewService.searchKeyword(keyword, pageable);
         model.addAttribute("crewPage",crewPage);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("sortProperty",
+                pageable.getSort().toString().contains("publishedDateTime") ? "publishedDateTime" : "memberCount");
         return "crew/search";
     }
 
