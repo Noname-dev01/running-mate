@@ -59,7 +59,7 @@ public class CrewEventListener {
         Crew crew = crewRepository.findCrewWithManagersAndMembersById(crewUpdateEvent.getCrew().getId());
         Set<Account> accounts = new HashSet<>();
         accounts.addAll(crew.getMembers());
-        accounts.add(crew.getManager());
+        accounts.addAll(crew.getManager());
 
         accounts.forEach(account -> {
             if (account.isCrewUpdatedByEmail()){

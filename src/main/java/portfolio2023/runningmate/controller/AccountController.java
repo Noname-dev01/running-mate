@@ -14,6 +14,7 @@ import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.domain.validator.SignUpFormValidator;
 import portfolio2023.runningmate.service.AccountService;
 import portfolio2023.runningmate.service.CrewService;
+import portfolio2023.runningmate.service.EnrollmentService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,6 +26,8 @@ public class AccountController {
 
     private final SignUpFormValidator signUpFormValidator;
     private final AccountService accountService;
+    private final CrewService crewService;
+    private final EnrollmentService enrollmentService;
 
     @InitBinder("signUpForm")
     public void initBinder(WebDataBinder webDataBinder){
@@ -34,8 +37,16 @@ public class AccountController {
     @GetMapping
     public String runningMateHome(@CurrentAccount Account account, Model model, String keyword){
         if (account != null){
-            model.addAttribute("account", account);
+            Account accountLoaded = accountService.accountLoaded(account);
+            model.addAttribute(accountLoaded);
+            model.addAttribute("enrollmentList", enrollmentService.findEnrollmentList(accountLoaded));
+            model.addAttribute("crewList", crewService.findByAccountCrewList(accountLoaded.getTags(), accountLoaded.getZones()));
+            model.addAttribute("crewManagerOf", crewService.findManagerOf(account));
+            model.addAttribute("crewMemberOf", crewService.findMemberOf(account));
+            return "index-after-login";
         }
+
+        model.addAttribute("crewList", crewService.find9CrewList());
         return "index";
     }
 

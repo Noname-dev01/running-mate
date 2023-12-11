@@ -74,7 +74,7 @@ public class CrewControllerTest {
         Crew crew = crewService.findByTitle("test-Crew");
         assertNotNull(crew);
         Account account = accountService.findByNickname("admin");
-        assertEquals(crew.getManager(), account);
+        assertTrue(crew.getManager().contains(account));
     }
 
     @Test

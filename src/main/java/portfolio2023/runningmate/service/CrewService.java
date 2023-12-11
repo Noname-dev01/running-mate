@@ -18,6 +18,7 @@ import portfolio2023.runningmate.domain.event.CrewUpdateEvent;
 import portfolio2023.runningmate.repository.CrewRepository;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -30,7 +31,7 @@ public class CrewService {
 
     public Crew createNewCrew(Crew crew, Account account) {
         Crew newCrew = crewRepository.save(crew);
-        newCrew.setManager(account);
+        newCrew.addManager(account);
         return newCrew;
     }
 
@@ -50,7 +51,7 @@ public class CrewService {
 
     public Crew getCrewToUpdate(Account account, String title) {
         Crew crew = this.getCrew(title);
-        if (!account.isManagerOf(crew)){
+        if (!crew.isManagerBy(account)){
             throw new AccessDeniedException("해당 기능을 사용할 수 없습니다.");
         }
         return crew;
@@ -111,7 +112,7 @@ public class CrewService {
     }
 
     private void checkIfManager(Account account, Crew crew) {
-        if (!account.isManagerOf(crew)){
+        if (!crew.isManagerBy(account)){
             throw new AccessDeniedException("해당 기능을 사용할 수 없습니다.");
         }
     }
@@ -176,4 +177,19 @@ public class CrewService {
         return crewRepository.findByKeyword(keyword, pageable);
     }
 
+    public List<Crew> find9CrewList() {
+        return crewRepository.findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(true,false);
+    }
+
+    public List<Crew> findByAccountCrewList(Set<Tag> tags, Set<Zone> zones) {
+        return crewRepository.findByAccountCrewList(tags, zones);
+    }
+
+    public List<Crew> findMemberOf(Account account) {
+        return crewRepository.findFirst5ByMembersContainingAndClosedOrderByPublishedDateTimeDesc(account, false);
+    }
+
+    public List<Crew> findManagerOf(Account account) {
+        return crewRepository.findFirst5ByManagerContainingAndClosedOrderByPublishedDateTimeDesc(account, false);
+    }
 }

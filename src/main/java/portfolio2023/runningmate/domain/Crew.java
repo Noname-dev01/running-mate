@@ -19,9 +19,8 @@ public class Crew {
     @Id @GeneratedValue
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "account_id")
-    private Account manager;
+    @ManyToMany
+    private Set<Account> manager = new HashSet<>();
 
     @ManyToMany
     private Set<Account> members = new HashSet<>();
@@ -136,5 +135,13 @@ public class Crew {
     public void removeAccount(Account account) {
         this.getMembers().remove(account);
         this.memberCount--;
+    }
+
+    public void addManager(Account account) {
+        this.manager.add(account);
+    }
+
+    public boolean isManagerBy(Account account){
+        return this.getManager().contains(account);
     }
 }

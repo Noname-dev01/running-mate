@@ -79,8 +79,5 @@ public class Account {
         return this.emailCheckTokenGeneratedAt.isBefore(LocalDateTime.now().minusMinutes(5));
     }
 
-    public boolean isManagerOf(Crew crew) {
-        return crew.getManager().equals(this);
-    }
 
 }

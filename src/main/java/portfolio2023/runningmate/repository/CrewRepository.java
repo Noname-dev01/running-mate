@@ -2,9 +2,13 @@ package portfolio2023.runningmate.repository;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Crew;
+import portfolio2023.runningmate.domain.Tag;
+import portfolio2023.runningmate.domain.Zone;
 
 import java.util.List;
+import java.util.Set;
 
 public interface CrewRepository extends JpaRepository<Crew,Long>, CrewRepositoryCustom {
     boolean existsByTitle(String title);
@@ -32,4 +36,10 @@ public interface CrewRepository extends JpaRepository<Crew,Long>, CrewRepository
     @EntityGraph(attributePaths = {"members", "manager"})
     Crew findCrewWithManagersAndMembersById(Long id);
 
+    @EntityGraph(attributePaths = {"zones", "tags"})
+    List<Crew> findFirst9ByPublishedAndClosedOrderByPublishedDateTimeDesc(boolean published, boolean closed);
+
+    List<Crew> findFirst5ByMembersContainingAndClosedOrderByPublishedDateTimeDesc(Account account, boolean closed);
+
+    List<Crew> findFirst5ByManagerContainingAndClosedOrderByPublishedDateTimeDesc(Account account, boolean closed);
 }
