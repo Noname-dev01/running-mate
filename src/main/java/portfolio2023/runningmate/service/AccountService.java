@@ -2,7 +2,9 @@ package portfolio2023.runningmate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Check;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +22,7 @@ import portfolio2023.runningmate.domain.Zone;
 import portfolio2023.runningmate.domain.dto.Notifications;
 import portfolio2023.runningmate.domain.dto.Profile;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
+import portfolio2023.runningmate.domain.event.CheckEmailEvent;
 import portfolio2023.runningmate.mail.EmailMessage;
 import portfolio2023.runningmate.mail.EmailService;
 import portfolio2023.runningmate.repository.AccountRepository;
@@ -42,10 +45,11 @@ public class AccountService implements UserDetailsService {
     private final ModelMapper modelMapper;
     private final TemplateEngine templateEngine;
     private final AppProperties appProperties;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Account processNewAccount(SignUpForm signUpForm){
         Account newAccount = saveNewAccount(signUpForm);
-//        sendSignUpConfirmEmail(newAccount);
+        sendSignUpConfirmEmail(newAccount);
         return newAccount;
     }
 
@@ -57,22 +61,7 @@ public class AccountService implements UserDetailsService {
     }
 
     public void sendSignUpConfirmEmail(Account newAccount) {
-        Context context = new Context();
-        context.setVariable("link", "/running-mate/check-email-token?token=" + newAccount.getEmailCheckToken() +
-                "&email=" + newAccount.getEmail());
-        context.setVariable("nickname", newAccount.getNickname());
-        context.setVariable("linkName", "이메일 인증하기");
-        context.setVariable("message", "러닝 메이트 서비스를 이용하시려면 링크를 클릭하세요.");
-        context.setVariable("host", appProperties.getHost());
-        String message = templateEngine.process("mail/simple-link", context);
-
-        EmailMessage emailMessage = EmailMessage.builder()
-                .to(newAccount.getEmail())
-                .subject("러닝 메이트, 회원 가입 인증")
-                .message(message)
-                .build();
-
-        emailService.sendEmail(emailMessage);
+        eventPublisher.publishEvent(new CheckEmailEvent(newAccount));
     }
     
     public Account findByEmail(String email){
