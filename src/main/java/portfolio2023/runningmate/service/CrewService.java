@@ -51,9 +51,7 @@ public class CrewService {
 
     public Crew getCrewToUpdate(Account account, String title) {
         Crew crew = this.getCrew(title);
-        if (!crew.isManagerBy(account)){
-            throw new AccessDeniedException("해당 기능을 사용할 수 없습니다.");
-        }
+        checkIfManager(account, crew);
         return crew;
     }
 

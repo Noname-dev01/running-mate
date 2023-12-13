@@ -8,16 +8,14 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import portfolio2023.runningmate.domain.Account;
-import portfolio2023.runningmate.domain.Crew;
-import portfolio2023.runningmate.security.CurrentAccount;
 import portfolio2023.runningmate.domain.dto.SignUpForm;
 import portfolio2023.runningmate.domain.validator.SignUpFormValidator;
+import portfolio2023.runningmate.security.CurrentAccount;
 import portfolio2023.runningmate.service.AccountService;
 import portfolio2023.runningmate.service.CrewService;
 import portfolio2023.runningmate.service.EnrollmentService;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @Controller
 @RequestMapping("/running-mate")

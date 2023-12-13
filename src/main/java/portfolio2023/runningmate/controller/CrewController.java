@@ -1,6 +1,5 @@
 package portfolio2023.runningmate.controller;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -22,7 +21,6 @@ import portfolio2023.runningmate.service.CrewService;
 import javax.validation.Valid;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 @Controller
 @RequestMapping("/running-mate")

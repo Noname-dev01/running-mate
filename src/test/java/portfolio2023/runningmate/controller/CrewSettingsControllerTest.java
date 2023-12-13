@@ -290,6 +290,7 @@ public class CrewSettingsControllerTest {
     @WithUserDetails(value = "admin", setupBefore = TestExecutionEvent.TEST_EXECUTION)
     public void closeCrew() throws Exception {
         Crew crew = crewService.findByTitle("test");
+        crew.publish();
         assertFalse(crew.isClosed());
 
         mockMvc.perform(post("/running-mate/crew/"+crew.getTitle()+"/settings/status/close")
@@ -298,7 +299,6 @@ public class CrewSettingsControllerTest {
                 .andExpect(redirectedUrl("/running-mate/crew/"+crew.getTitle()+"/settings/status"))
                 .andExpect(flash().attributeExists("message"));
 
-        assertFalse(crew.isPublished());
         assertTrue(crew.isClosed());
     }
 

@@ -62,7 +62,7 @@ public class Crew {
     public boolean isJoinable(UserAccount userAccount){
         Account account = userAccount.getAccount();
         return this.isPublished() && this.isRecruiting()
-                && !this.members.contains(account) && !this.manager.equals(account);
+                && !this.members.contains(account) && !this.manager.contains(account);
     }
 
     public boolean isMember(UserAccount userAccount){
@@ -70,7 +70,7 @@ public class Crew {
     }
 
     public boolean isManager(UserAccount userAccount){
-        return this.manager.equals(userAccount.getAccount());
+        return this.manager.contains(userAccount.getAccount());
     }
 
     public String getEncodedTitle() {
@@ -92,7 +92,7 @@ public class Crew {
 
 
     public void close() {
-        if (!this.published && !this.closed){
+        if (this.published && !this.closed){
             this.closed = true;
             this.closedDateTime = LocalDateTime.now();
         }else {
@@ -143,5 +143,9 @@ public class Crew {
 
     public boolean isManagerBy(Account account){
         return this.getManager().contains(account);
+    }
+
+    public void addMember(Account account){
+        this.members.add(account);
     }
 }
