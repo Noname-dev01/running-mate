@@ -37,7 +37,7 @@ dependencies {
 	//H2 db
 	implementation 'com.h2database:h2'
 	//mariadb
-	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	compile 'org.mariadb.jdbc:mariadb-java-client'
 	//Spring Security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5'
