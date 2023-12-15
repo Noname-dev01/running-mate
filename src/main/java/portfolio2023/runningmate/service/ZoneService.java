@@ -11,6 +11,7 @@ import portfolio2023.runningmate.repository.ZoneRepository;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
@@ -26,7 +27,7 @@ public class ZoneService {
     @PostConstruct
     public void initZoneData() throws IOException {
         if (zoneRepository.count() == 0){
-            Resource resource = new ClassPathResource("zones_kr.csv");
+            Resource resource = (Resource) new ClassPathResource("zones_kr.csv").getInputStream();
             List<Zone> zoneList = Files.readAllLines(resource.getFile().toPath(), StandardCharsets.UTF_8).stream()
                     .map(line -> {
                         String[] split = line.split(",");
