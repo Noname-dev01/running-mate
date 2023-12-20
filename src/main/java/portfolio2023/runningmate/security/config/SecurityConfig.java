@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .mvcMatchers("/running-mate","/running-mate/sign-up","/running-mate/login"
                         ,"/resources/**","/running-mate/check-email-token","/running-mate/email-login",
                         "/running-mate/login-by-email","/running-mate/check-login-email","/running-mate/login-link"
-                        ,"/running-mate/search/crew")
+                        ,"/running-mate/search/crew","/profile")
                 .permitAll()
                 .mvcMatchers(HttpMethod.GET, "/profile/*").permitAll()
                 .anyRequest().authenticated()
