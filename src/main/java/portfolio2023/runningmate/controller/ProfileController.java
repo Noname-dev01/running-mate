@@ -1,6 +1,5 @@
 package portfolio2023.runningmate.controller;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +14,7 @@ public class ProfileController {
 
     private final Environment env;
 
-    @GetMapping("/running-mate/env")
+    @GetMapping("/profile")
     public String profile(){
         List<String> profiles = Arrays.asList(env.getActiveProfiles());
         List<String> realProfiles = Arrays.asList("real", "real1", "real2");
