@@ -28,7 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http.authorizeRequests()
-                .mvcMatchers("/running-mate","/running-mate/sign-up","/running-mate/login"
+                .mvcMatchers("/","/running-mate","/running-mate/sign-up","/running-mate/login"
                         ,"/resources/**","/running-mate/check-email-token","/running-mate/email-login",
                         "/running-mate/login-by-email","/running-mate/check-login-email","/running-mate/login-link"
                         ,"/running-mate/search/crew","/profile").permitAll()
