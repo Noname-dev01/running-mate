@@ -39,8 +39,9 @@ public class Account {
 
     private String location;
 
-    @Lob @Basic(fetch = FetchType.EAGER)
-    private String profileImage;
+    private String fileName;
+
+    private String filePath;
 
     private boolean CrewCreatedByEmail;
 

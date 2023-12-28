@@ -10,22 +10,23 @@ import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import portfolio2023.runningmate.converter.Base64ToMultipartFile;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Tag;
 import portfolio2023.runningmate.domain.Zone;
 import portfolio2023.runningmate.domain.dto.*;
 import portfolio2023.runningmate.domain.validator.NicknameValidator;
 import portfolio2023.runningmate.domain.validator.PasswordFormValidator;
-import portfolio2023.runningmate.repository.TagRepository;
 import portfolio2023.runningmate.repository.ZoneRepository;
 import portfolio2023.runningmate.security.CurrentAccount;
 import portfolio2023.runningmate.service.AccountService;
 import portfolio2023.runningmate.service.TagService;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,6 @@ public class SettingsController {
     private final AccountService accountService;
     private final ModelMapper modelMapper;
     private final NicknameValidator nicknameValidator;
-    private final TagRepository tagRepository;
     private final ObjectMapper objectMapper;
     private final ZoneRepository zoneRepository;
     private final TagService tagService;
@@ -61,14 +61,14 @@ public class SettingsController {
 
     @PostMapping("/settings/profile")
     public String updateProfile(@CurrentAccount Account account, @Valid Profile profile, Errors errors,
-                                Model model, RedirectAttributes attributes) {
+                                Model model, RedirectAttributes attributes) throws IOException {
         if (errors.hasErrors()) {
             model.addAttribute(account);
             return "settings/update-profile";
         }
-
         accountService.updateProfile(account, profile);
         attributes.addFlashAttribute("message", "프로필을 수정했습니다.");
+
         return "redirect:/running-mate/settings/profile";
     }
 

@@ -33,8 +33,8 @@ public class Crew {
     @Lob @Basic(fetch = FetchType.EAGER)
     private String fullDescription;
 
-    @Lob @Basic(fetch = FetchType.EAGER)
-    private String image;
+    private String bannerName;
+    private String bannerPath;
 
     @ManyToMany
     private Set<Tag> tags = new HashSet<>();
@@ -75,10 +75,6 @@ public class Crew {
 
     public String getEncodedTitle() {
         return URLEncoder.encode(this.title, StandardCharsets.UTF_8);
-    }
-
-    public String getImage(){
-        return image != null ? image : "/images/default-banner.jpeg";
     }
 
     public void publish() {

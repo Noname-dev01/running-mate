@@ -9,7 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import portfolio2023.runningmate.converter.Base64ToMultipartFile;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Crew;
 import portfolio2023.runningmate.domain.Tag;
@@ -23,6 +25,7 @@ import portfolio2023.runningmate.service.TagService;
 import portfolio2023.runningmate.service.ZoneService;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +39,7 @@ public class CrewSettingsController {
     private final TagService tagService;
     private final ObjectMapper objectMapper;
     private final ZoneService zoneService;
+    private final Base64ToMultipartFile base64ToMultipartFile;
 
     @GetMapping("/description")
     public String viewCrewSetting(@CurrentAccount Account account, @PathVariable String title, Model model){
@@ -73,9 +77,10 @@ public class CrewSettingsController {
 
     @PostMapping("/banner")
     public String crewBannerSubmit(@CurrentAccount Account account, @PathVariable String title,
-                                   String image, RedirectAttributes attributes){
+                                   String image,String fileName, RedirectAttributes attributes) throws IOException {
         Crew crew = crewService.getCrewToUpdate(account, title);
-        crewService.updateCrewImage(crew, image);
+        MultipartFile file = base64ToMultipartFile.convert(image, fileName);
+        crewService.updateCrewImage(crew, file);
         attributes.addFlashAttribute("message", "크루 이미지를 수정했습니다.");
         return "redirect:/running-mate/crew/"+ crew.getEncodedTitle() + "/settings/banner";
     }

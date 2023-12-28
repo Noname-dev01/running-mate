@@ -101,10 +101,10 @@
                                 <td>
                                     <a th:href="@{'/running-mate/profile/' + ${enroll.account.nickname}}"
                                        class="text-decoration-none">
-                                        <svg th:if="${#strings.isEmpty(enroll.account?.profileImage)}" data-jdenticon-value="nickname"
+                                        <svg th:if="${#strings.isEmpty(enroll.account?.filePath)}" data-jdenticon-value="nickname"
                                              th:data-jdenticon-value="${enroll.account.nickname}" width="24" height="24" class="rounded border bg-light"></svg>
-                                        <img th:if="${!#strings.isEmpty(enroll.account?.profileImage)}"
-                                             th:src="${enroll.account?.profileImage}" width="24" height="24" class="rounded border"/>
+                                        <img th:if="${!#strings.isEmpty(enroll.account?.filePath)}"
+                                             th:src="${enroll.account?.filePath}" width="24" height="24" class="rounded border"/>
                                         <span th:text="${enroll.account.nickname}"></span>
                                     </a>
                                 </td>
@@ -172,10 +172,10 @@
                 <dt class="fw-light">모임장</dt>
                 <dd>
                     <a th:href="@{'/running-mate/profile/' + ${event.createdBy?.nickname}}" class="text-decoration-none">
-                        <svg th:if="${#strings.isEmpty(event.createdBy?.profileImage)}"
+                        <svg th:if="${#strings.isEmpty(event.createdBy?.filePath)}"
                              th:data-jdenticon-value="${event.createdBy?.nickname}" width="24" height="24" class="rounded border bg-light"></svg>
-                        <img th:if="${!#strings.isEmpty(event.createdBy?.profileImage)}"
-                             th:src="${event.createdBy?.profileImage}" width="24" height="24" class="rounded border"/>
+                        <img th:if="${!#strings.isEmpty(event.createdBy?.filePath)}"
+                             th:src="${event.createdBy?.filePath}" width="24" height="24" class="rounded border"/>
                         <span th:text="${event.createdBy?.nickname}"></span>
                     </a>
                 </dd>

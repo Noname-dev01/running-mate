@@ -3,6 +3,7 @@ package portfolio2023.runningmate.domain.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.web.multipart.MultipartFile;
 import portfolio2023.runningmate.domain.Account;
 
 @Data
@@ -16,7 +17,7 @@ public class Profile {
     private String occupation;
     @Length(max = 50)
     private String location;
-
+    private String fileName;
+    private String filePath;
     private String profileImage;
-
 }

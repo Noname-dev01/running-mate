@@ -20,7 +20,7 @@
                     <h2 class="col-sm-12" th:text="${account.nickname}">nickname</h2>
                 </div>
                 <div class="row mt-3">
-                    <form class="col-sm-6" action="#"
+                    <form class="col-sm-6" action="#" enctype="multipart/form-data"
                           th:action="@{/running-mate/settings/profile}" th:object="${profile}" method="post" novalidate>
                         <div class="form-group">
                             <label for="introduction">한 줄 소개</label>
@@ -65,45 +65,51 @@
                         </div>
 
                         <div class="form-group">
+                            <input id="fileName" type="hidden" th:field="*{fileName}" class="form-control" />
+                        </div>
+
+                        <div class="form-group">
                             <input id="profileImage" type="hidden" th:field="*{profileImage}" class="form-control" />
                         </div>
 
-                        <div class="form-group d-grid gap-1">
-                            <button class="btn btn-primary" type="submit"
-                                    aria-describedby="submitHelp">수정하기</button>
-                        </div>
+                            <div class="form-group d-grid gap-1">
+                                <button class="btn btn-primary" type="submit"
+                                        aria-describedby="submitHelp">수정하기</button>
+                            </div>
                     </form>
+
                     <div class="col-sm-6">
                         <div class="card text-center">
                             <div class="card-header">
                                 프로필 이미지
                             </div>
                             <div id="current-profile-image" class="mt-3">
-                                <svg th:if="${#strings.isEmpty(profile.profileImage)}" class="rounded"
+                                <svg th:if="${#strings.isEmpty(profile.filePath)}" class="rounded"
                                      th:data-jdenticon-value="${account.nickname}" width="125" height="125"></svg>
-                                <img th:if="${!#strings.isEmpty(profile.profileImage)}" class="rounded"
-                                     th:src="${profile.profileImage}"
+                                <img th:if="${!#strings.isEmpty(profile.filePath)}" class="rounded"
+                                     th:src="${profile.filePath}"
                                      width="125" height="125" alt="name" th:alt="${account.nickname}">
                             </div>
                             <div id="new-profile-image" class="mt-3"></div>
                             <div class="card-body">
-                                <div class="input-group">
-                                    <input type="file" class="form-control" id="profile-image-file">
+                                <div class="custom-file">
+                                    <input type="file" class="custom-file-input" id="profile-image-file">
+                                    <label class="custom-file-label" for="profile-image-file">프로필 이미지 변경</label>
                                 </div>
-                                <div id="new-profile-image-control" class="d-grid gap-3 mt-3">
-                                    <button class="btn btn-outline-primary" id="cut-button">자르기</button>
-                                    <button class="btn btn-outline-success" id="confirm-button">확인</button>
-                                    <button class="btn btn-outline-warning" id="reset-button">취소</button>
+                                <div id="new-profile-image-control" class="mt-3">
+                                    <button class="btn btn-outline-primary btn-block" id="cut-button">자르기</button>
+                                    <button class="btn btn-outline-success btn-block" id="confirm-button">확인</button>
+                                    <button class="btn btn-outline-warning btn-block" id="reset-button">취소</button>
                                 </div>
                                 <div id="cropped-new-profile-image" class="mt-3"></div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
-    
+</div>
+
 </div>
 
 <footer th:replace="fragments/footer.html :: footer"></footer>
@@ -121,6 +127,7 @@
         let $currentProfileImage = $("#current-profile-image");
         let $resultImage = $("#cropped-new-profile-image");
         let $profileImage = $("#profileImage");
+        let $fileName = $("#fileName");
 
         $newProfileImage.hide();
         $cutBtn.hide();
@@ -135,6 +142,12 @@
                         if (!e.target.result.startsWith("data:image")){
                             alert("이미지 파일을 선택하세요.");
                             return;
+                        }
+
+                        var fileInput = document.getElementById('profile-image-file');
+                        if (fileInput.files.length > 0 ){
+                            var fileName = fileInput.files[0].name;
+                            $fileName.val(fileName);
                         }
 
                         let img = document.createElement("img");

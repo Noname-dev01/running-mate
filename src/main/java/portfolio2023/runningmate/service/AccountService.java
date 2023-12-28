@@ -2,7 +2,8 @@ package portfolio2023.runningmate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.Check;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,8 +15,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import portfolio2023.runningmate.converter.Base64ToMultipartFile;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Tag;
 import portfolio2023.runningmate.domain.Zone;
@@ -26,9 +30,12 @@ import portfolio2023.runningmate.domain.event.CheckEmailEvent;
 import portfolio2023.runningmate.mail.EmailMessage;
 import portfolio2023.runningmate.mail.EmailService;
 import portfolio2023.runningmate.repository.AccountRepository;
+import portfolio2023.runningmate.s3.S3Uploader;
 import portfolio2023.runningmate.security.UserAccount;
 import portfolio2023.runningmate.security.config.AppProperties;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +53,8 @@ public class AccountService implements UserDetailsService {
     private final TemplateEngine templateEngine;
     private final AppProperties appProperties;
     private final ApplicationEventPublisher eventPublisher;
+    private final S3Uploader s3Uploader;
+    private final Base64ToMultipartFile base64ToMultipartFile;
 
     public Account processNewAccount(SignUpForm signUpForm){
         Account newAccount = saveNewAccount(signUpForm);
@@ -100,8 +109,19 @@ public class AccountService implements UserDetailsService {
         return accountRepository.findByNickname(nickname);
     }
 
-    public void updateProfile(Account account, Profile profile) {
-        modelMapper.map(profile, account);
+    public void updateProfile(Account account, Profile profile) throws IOException {
+        if (profile.getProfileImage() != null && !profile.getProfileImage().isEmpty()){
+            MultipartFile file = base64ToMultipartFile.convert(profile.getProfileImage(), profile.getFileName());
+            if (file != null && !file.isEmpty()){
+                String storedFileName = s3Uploader.upload(file, "images/profile");
+                account.setFilePath(storedFileName);
+                account.setFileName(file.getOriginalFilename());
+            }
+        }
+        account.setIntroduction(profile.getIntroduction());
+        account.setUrl(profile.getUrl());
+        account.setOccupation(profile.getOccupation());
+        account.setLocation(profile.getLocation());
         accountRepository.save(account);
     }
 

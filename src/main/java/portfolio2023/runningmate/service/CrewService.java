@@ -1,6 +1,8 @@
 package portfolio2023.runningmate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -8,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import portfolio2023.runningmate.domain.Account;
 import portfolio2023.runningmate.domain.Crew;
 import portfolio2023.runningmate.domain.Tag;
@@ -16,7 +20,10 @@ import portfolio2023.runningmate.domain.dto.CrewDescriptionForm;
 import portfolio2023.runningmate.domain.event.CrewCreatedEvent;
 import portfolio2023.runningmate.domain.event.CrewUpdateEvent;
 import portfolio2023.runningmate.repository.CrewRepository;
+import portfolio2023.runningmate.s3.S3Uploader;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -28,6 +35,7 @@ public class CrewService {
     private final CrewRepository crewRepository;
     private final ModelMapper modelMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final S3Uploader s3Uploader;
 
     public Crew createNewCrew(Crew crew, Account account) {
         Crew newCrew = crewRepository.save(crew);
@@ -60,8 +68,12 @@ public class CrewService {
         eventPublisher.publishEvent(new CrewUpdateEvent(crew, "크루 소개를 수정했습니다."));
     }
 
-    public void updateCrewImage(Crew crew, String image) {
-        crew.setImage(image);
+    public void updateCrewImage(Crew crew, MultipartFile file) throws IOException {
+        if (!file.isEmpty()){
+            String storedFileName = s3Uploader.upload(file, "images/banner");
+            crew.setBannerName(file.getOriginalFilename());
+            crew.setBannerPath(storedFileName);
+        }
     }
 
     public void enableCrewBanner(Crew crew){

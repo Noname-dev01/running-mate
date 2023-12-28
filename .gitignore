@@ -39,3 +39,6 @@ out/
 ### NPM ###
 src/main/resources/static/node_modules
 src/main/resources/application-dev.properties
+src/main/resources/application-s3.properties
+application-s3.properties
+src/test/resources/application-dev.properties
