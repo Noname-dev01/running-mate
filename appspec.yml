@@ -8,7 +8,7 @@ files:
 permissions:
   - object: /
     pattern: "**"
-    owner: ec2-user
+    owner: root
     group: ec2-user
 
 hooks:
