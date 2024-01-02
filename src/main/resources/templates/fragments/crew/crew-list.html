@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-md-4" th:each="crew: ${crewList}">
             <div class="card mb-4 shadow-sm">
-                <img th:src="${crew.image}" class="card-img-top" th:alt="${crew.title}" >
+                <img th:src="${crew.bannerPath}" class="card-img-top" th:alt="${crew.title}" >
                 <div class="card-body">
                     <a th:href="@{'/running-mate/crew/' + ${crew.title}}" class="text-decoration-none">
                         <h5 class="card-title context" th:text="${crew.title}"></h5>
