@@ -2,7 +2,6 @@ package portfolio2023.runningmate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +12,7 @@ import portfolio2023.runningmate.repository.ZoneRepository;
 import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,11 +32,6 @@ public class ZoneService {
                 String[] split = line.split(",");
                 return Zone.builder().city(split[0]).localNameOfCity(split[1]).province(split[2]).build();
             }).collect(Collectors.toList());
-//            List<Zone> zoneList = Files.readAllLines(resource.getFile().toPath(), StandardCharsets.UTF_8).stream()
-//                    .map(line -> {
-//                        String[] split = line.split(",");
-//                        return Zone.builder().city(split[0]).localNameOfCity(split[1]).province(split[2]).build();
-//                    }).collect(Collectors.toList());
             zoneRepository.saveAll(zoneList);
         }
     }
